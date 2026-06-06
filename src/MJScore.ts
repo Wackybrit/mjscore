@@ -1,45 +1,59 @@
-import { createGame } from "./services/game-service";
-import { getPlayerName } from "./models/game-utils";
+import readline from "node:readline/promises";
+import { stdin as input, stdout as output } from "node:process";
+
 import { HandResult } from "./models/hand-result";
 import { Wind } from "./models/wind";
-import { calculateNetResults, calculateSettlements } from "./services/scoring-service";
+import { createGame, recordHand } from "./services/game-service";
+import {
+    buildGameStatusReport,
+    buildHandSummaryReport
+} from "./services/reporting-service";
 
-const game = createGame(
-    ["Nick", "Tasha", "Will", "Talia"],
-    0
-);
-
-const handResult: HandResult = {
-    handNumber: 1,
-    roundWind: Wind.East,
-    eastPlayerId: "1",
-    players: [
-        { playerId: "1", handScore: 12, mahJongg: false },
-        { playerId: "2", handScore: 60, mahJongg: true },
-        { playerId: "3", handScore: 20, mahJongg: false },
-        { playerId: "4", handScore: 2, mahJongg: false }
-    ]
-};
-
-const settlements = calculateSettlements(handResult);
-
-console.log("Settlements:");
-
-settlements.forEach(settlement => {
-    console.log(
-        `${getPlayerName(game, settlement.fromPlayerId)} pays ${getPlayerName(
-            game,
-            settlement.toPlayerId
-        )}: ${settlement.amount} (${settlement.reason})`
-    );
+const rl = readline.createInterface({
+    input,
+    output
 });
 
-const netResults = calculateNetResults(settlements);
+async function waitForEnter(message: string): Promise<void> {
+    await rl.question(`\n${message}`);
+}
 
-console.log("\nNet Results:");
-
-netResults.forEach(result => {
-    console.log(
-        `${getPlayerName(game, result.playerId)}: ${result.amount}`
+async function main(): Promise<void> {
+    let game = createGame(
+        ["Nick", "Tasha", "Will", "Talia"],
+        0
     );
+
+    console.log(buildGameStatusReport(game));
+
+    await waitForEnter("Press Enter to score the completed hand...");
+
+    const handResult: HandResult = {
+        handNumber: game.handNumber,
+        roundWind: game.roundWind,
+        eastPlayerId: game.players[game.eastPlayerIndex]!.id,
+        players: [
+            { playerId: "1", handScore: 12, mahJongg: false },
+            { playerId: "2", handScore: 60, mahJongg: true },
+            { playerId: "3", handScore: 20, mahJongg: false },
+            { playerId: "4", handScore: 2, mahJongg: false }
+        ]
+    };
+
+    console.clear();
+    console.log(buildHandSummaryReport(game, handResult));
+
+    await waitForEnter("Press Enter to advance to the next hand...");
+
+    game = recordHand(game, handResult);
+
+    console.clear();
+    console.log(buildGameStatusReport(game));
+
+    rl.close();
+}
+
+main().catch(error => {
+    console.error(error);
+    rl.close();
 });

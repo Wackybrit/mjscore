@@ -24,3 +24,21 @@ export function nextWind(currentWind: Wind): Wind {
         (currentIndex + 1) % WIND_ORDER.length
     ]!;
 }
+export function getWindNumber(
+    wind: Wind
+): number {
+
+    switch (wind) {
+        case Wind.East:
+            return 1;
+
+        case Wind.South:
+            return 2;
+
+        case Wind.West:
+            return 3;
+
+        case Wind.North:
+            return 4;
+    }
+}

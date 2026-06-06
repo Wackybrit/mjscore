@@ -1,8 +1,10 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.calculateSettlements = calculateSettlements;
+exports.getMahJonggPlayer = getMahJonggPlayer;
 exports.calculateNetResults = calculateNetResults;
 exports.applyNetResultsToPlayers = applyNetResultsToPlayers;
+exports.calculateSettlementSummary = calculateSettlementSummary;
 function calculateSettlements(handResult) {
     const winner = getMahJonggPlayer(handResult.players);
     const settlements = [];
@@ -83,5 +85,13 @@ function applyNetResultsToPlayers(game, netResults) {
         }
         player.score += result.amount;
     });
+}
+function calculateSettlementSummary(handResult) {
+    const settlements = calculateSettlements(handResult);
+    const netResults = calculateNetResults(settlements);
+    return {
+        settlements,
+        netResults
+    };
 }
 //# sourceMappingURL=scoring-service.js.map

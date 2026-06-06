@@ -2,6 +2,7 @@ import { Game } from "../models/game";
 import { HandResult, HandPlayerResult } from "../models/hand-result";
 import { Settlement } from "../models/settlement";
 import { PlayerNetResult } from "../models/settlement-summary";
+import { SettlementSummary } from "../models/settlement-summary";
 
 export function calculateSettlements(
     handResult: HandResult
@@ -26,7 +27,7 @@ export function calculateSettlements(
     return settlements;
 }
 
-function getMahJonggPlayer(
+export function getMahJonggPlayer(
     players: HandPlayerResult[]
 ): HandPlayerResult {
     const winners = players.filter(player => player.mahJongg);
@@ -158,4 +159,16 @@ export function applyNetResultsToPlayers(
 
         player.score += result.amount;
     });
+}
+
+export function calculateSettlementSummary(
+    handResult: HandResult
+): SettlementSummary {
+    const settlements = calculateSettlements(handResult);
+    const netResults = calculateNetResults(settlements);
+
+    return {
+        settlements,
+        netResults
+    };
 }
