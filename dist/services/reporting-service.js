@@ -2,6 +2,8 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.buildHandSummaryReport = buildHandSummaryReport;
 exports.buildGameStatusReport = buildGameStatusReport;
+exports.buildHandHistoryReport = buildHandHistoryReport;
+exports.getHandHistoryRows = getHandHistoryRows;
 const scoring_service_1 = require("./scoring-service");
 const game_utils_1 = require("../models/game-utils");
 const wind_1 = require("../models/wind");
@@ -59,5 +61,38 @@ function buildGameStatusReport(game) {
         lines.push(`${player.name.padEnd(10)} ${scoreText.padStart(6)}`);
     });
     return lines.join("\n");
+}
+function buildHandHistoryReport(game) {
+    const lines = [];
+    lines.push("Hand History");
+    lines.push("");
+    lines.push(game.players
+        .map(player => player.name.padEnd(10))
+        .join(""));
+    game.hands.forEach(hand => {
+        const row = game.players.map(player => {
+            const playerResult = hand.players.find(result => result.playerId === player.id);
+            if (!playerResult) {
+                return "".padStart(10);
+            }
+            const scoreText = playerResult.handScore
+                .toString()
+                .padStart(4) +
+                (playerResult.mahJongg ? "*" : "");
+            return scoreText.padStart(10);
+        });
+        lines.push(row.join(""));
+    });
+    return lines.join("\n");
+}
+function getHandHistoryRows(game) {
+    return game.hands.map(hand => game.players.map(player => {
+        const result = hand.players.find(p => p.playerId === player.id);
+        if (!result) {
+            return "";
+        }
+        return (result.handScore.toString() +
+            (result.mahJongg ? "*" : ""));
+    }));
 }
 //# sourceMappingURL=reporting-service.js.map

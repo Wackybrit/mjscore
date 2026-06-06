@@ -105,3 +105,63 @@ export function buildGameStatusReport(
 
     return lines.join("\n");
 }
+
+export function buildHandHistoryReport(
+    game: Game
+): string {
+    const lines: string[] = [];
+
+    lines.push("Hand History");
+    lines.push("");
+
+    lines.push(
+        game.players
+            .map(player => player.name.padEnd(10))
+            .join("")
+    );
+
+    game.hands.forEach(hand => {
+        const row = game.players.map(player => {
+            const playerResult = hand.players.find(
+                result => result.playerId === player.id
+            );
+
+            if (!playerResult) {
+                return "".padStart(10);
+            }
+
+            const scoreText =
+                playerResult.handScore
+                    .toString()
+                    .padStart(4) +
+                (playerResult.mahJongg ? "*" : "");
+
+            return scoreText.padStart(10);
+        });
+
+        lines.push(row.join(""));
+    });
+
+    return lines.join("\n");
+}
+
+export function getHandHistoryRows(
+    game: Game
+): string[][] {
+    return game.hands.map(hand =>
+        game.players.map(player => {
+            const result = hand.players.find(
+                p => p.playerId === player.id
+            );
+
+            if (!result) {
+                return "";
+            }
+
+            return (
+                result.handScore.toString() +
+                (result.mahJongg ? "*" : "")
+            );
+        })
+    );
+}
