@@ -1,0 +1,7 @@
+- Record hand history
+- Display settlements
+- Save/load games
+- Tile-based scoring screen
+- Export game results
+- Statistics
+- Mobile-friendly layout
