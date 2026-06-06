@@ -1,2 +1,22 @@
-.gitignore
-TODO.md
+# Dependencies
+node_modules/
+
+# Compiled output
+dist/
+
+# Environment variables
+.env
+.env.*
+
+# VS Code workspace settings (optional)
+.vscode/settings.json
+
+# OS files
+Thumbs.db
+Desktop.ini
+
+# Logs
+*.log
+
+# TypeScript build cache
+*.tsbuildinfo
