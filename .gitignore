@@ -1,0 +1,25 @@
+# Dependencies
+node_modules/
+
+# Compiled output
+dist/
+
+# Game data
+data/
+
+# Environment variables
+.env
+.env.*
+
+# VS Code workspace settings (optional)
+.vscode/settings.json
+
+# OS files
+Thumbs.db
+Desktop.ini
+
+# Logs
+*.log
+
+# TypeScript build cache
+*.tsbuildinfo
