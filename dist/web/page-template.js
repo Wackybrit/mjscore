@@ -46,6 +46,15 @@ function renderPage(title, body) {
         th {
             background-color: #f0f0f0;
         }
+
+        .no-border {
+            border-top: none !important;
+            border-bottom: none !important;
+            border-left: none !important;
+            border-right: none !important;
+            background: transparent;
+        }
+                        
     </style>
 </head>
 <body>
