@@ -23,6 +23,22 @@ function registerHomeRoute(app, getGame) {
         <button>View Hand History</button>
     </a>
 </p>
+<p>
+    <a href="/save-game">
+        <button>Save Game As</button>
+    </a>
+</p>
+
+<p>
+    <a href="/load-game">
+        <button>Load Saved Game</button>
+    </a>
+</p>
+<p>
+    <a href="/new-game">
+        <button>Start New Game</button>
+    </a>
+</p>
 `));
     });
 }

@@ -5,6 +5,11 @@ import { HandResult } from "../../models/hand-result";
 import { recordHand } from "../../services/game-service";
 import { buildHandSummaryReport } from "../../services/reporting-service";
 import { renderPage } from "../page-template";
+import {
+    combineValidationResults,
+    validateHandScores,
+    validateMahJonggWinner
+} from "../../services/validation-service";
 
 export function registerScoreHandRoute(
     app: Express,
@@ -21,14 +26,17 @@ export function registerScoreHandRoute(
 <h1>Score Completed Hand</h1>
 
 <form method="POST" action="/score-hand">
-    ${game.players.map(player => `
+    ${game.players.map((player, index) => `
         <div>
             <label>
                 ${player.name} Score:
                 <input 
                     type="number" 
                     name="score_${player.id}" 
+                    min="0"
+                    step="2"
                     required
+                    ${index === 0 ? "autofocus" : ""}
                 >
             </label>
 
@@ -61,13 +69,49 @@ export function registerScoreHandRoute(
         const game = getGame();
         const winnerId = req.body.winnerId as string;
 
+        const scores = game.players.map(player =>
+            Number(req.body[`score_${player.id}`])
+        );
+
+        const validation = combineValidationResults(
+            validateHandScores(scores),
+            validateMahJonggWinner(winnerId)
+        );
+
+        if (!validation.valid) {
+            res.send(
+                renderPage(
+                    "Score Entry Error - MJScore",
+                    `
+<h1>Score Entry Error</h1>
+
+<p>Please correct the following problems:</p>
+
+<ul>
+    ${validation.errors
+        .map(error => `<li>${error}</li>`)
+        .join("")}
+</ul>
+
+<p>
+    <a href="/score-hand">
+        <button>Back to Score Entry</button>
+    </a>
+</p>
+`
+                )
+            );
+
+            return;
+        }
+
         const handResult: HandResult = {
             handNumber: game.handNumber,
             roundWind: game.roundWind,
             eastPlayerId: game.players[game.eastPlayerIndex]!.id,
-            players: game.players.map(player => ({
+            players: game.players.map((player, index) => ({
                 playerId: player.id,
-                handScore: Number(req.body[`score_${player.id}`]),
+                handScore: scores[index]!,
                 mahJongg: player.id === winnerId
             }))
         };

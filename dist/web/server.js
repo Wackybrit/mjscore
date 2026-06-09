@@ -10,6 +10,8 @@ const home_route_1 = require("./routes/home-route");
 const score_hand_route_1 = require("./routes/score-hand-route");
 const history_route_1 = require("./routes/history-route");
 const persistence_service_1 = require("../services/persistence-service");
+const save_load_route_1 = require("./routes/save-load-route");
+const new_game_route_1 = require("./routes/new-game-route");
 const app = (0, express_1.default)();
 const PORT = 3000;
 app.use(express_1.default.urlencoded({ extended: true }));
@@ -25,6 +27,8 @@ function setGame(updatedGame) {
 (0, home_route_1.registerHomeRoute)(app, getGame);
 (0, score_hand_route_1.registerScoreHandRoute)(app, getGame, setGame);
 (0, history_route_1.registerHistoryRoute)(app, getGame);
+(0, save_load_route_1.registerSaveLoadRoute)(app, getGame, setGame);
+(0, new_game_route_1.registerNewGameRoute)(app, setGame);
 function startServer() {
     app.listen(PORT, () => {
         console.log(`MJScore listening on http://localhost:${PORT}`);
