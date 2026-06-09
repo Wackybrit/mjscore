@@ -4,6 +4,7 @@ exports.registerHistoryRoute = registerHistoryRoute;
 const game_utils_1 = require("../../models/game-utils");
 const scoring_service_1 = require("../../services/scoring-service");
 const page_template_1 = require("../page-template");
+const rack_color_1 = require("../../models/rack-color");
 function registerHistoryRoute(app, getGame) {
     app.get("/history", (_req, res) => {
         const game = getGame();
@@ -19,9 +20,12 @@ function registerHistoryRoute(app, getGame) {
                 if (!result) {
                     return "<td></td>";
                 }
-                const score = result.handScore.toString() +
-                    (result.mahJongg ? "*" : "");
-                return `<td>${score}</td>`;
+                const score = result.handScore.toString();
+                const playerColor = (0, rack_color_1.getRackColorCss)(player.rackColor);
+                const style = result.mahJongg
+                    ? ` style="background-color: ${playerColor}; font-weight: bold;"`
+                    : "";
+                return `<td${style}>${score}</td>`;
             })
                 .join("");
             const settlements = (0, scoring_service_1.calculateSettlements)(hand);
@@ -52,7 +56,7 @@ function registerHistoryRoute(app, getGame) {
             .map(player => {
             const count = game.hands.filter(hand => hand.players.some(result => result.playerId === player.id &&
                 result.mahJongg)).length;
-            return `<td>${count}</td>`;
+            return `<td><strong>${count}</strong></td>`;
         })
             .join("");
         res.send((0, page_template_1.renderPage)("Hand History - MJScore", `

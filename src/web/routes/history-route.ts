@@ -4,6 +4,7 @@ import { getPlayerName } from "../../models/game-utils";
 import { Game } from "../../models/game";
 import { calculateNetResults, calculateSettlements } from "../../services/scoring-service";
 import { renderPage } from "../page-template";
+import { getRackColorCss } from "../../models/rack-color";
 
 export function registerHistoryRoute(
     app: Express,
@@ -31,10 +32,14 @@ export function registerHistoryRoute(
                         }
 
                         const score =
-                            result.handScore.toString() +
-                            (result.mahJongg ? "*" : "");
+                            result.handScore.toString() 
 
-                        return `<td>${score}</td>`;
+                        const playerColor = getRackColorCss(player.rackColor);
+                        const style = result.mahJongg
+                            ? ` style="background-color: ${playerColor}; font-weight: bold;"`
+                            : "";
+
+                        return `<td${style}>${score}</td>`;
                     })
                     .join("");
 
@@ -84,7 +89,7 @@ export function registerHistoryRoute(
                 )
             ).length;
 
-            return `<td>${count}</td>`;
+            return `<td><strong>${count}</strong></td>`;
         })
         .join("");
 

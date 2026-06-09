@@ -6,12 +6,14 @@ exports.recordHand = recordHand;
 const wind_1 = require("../models/wind");
 const game_utils_1 = require("../models/game-utils");
 const scoring_service_1 = require("./scoring-service");
-function createGame(playerNames, startingEastPlayerIndex) {
+const rack_color_1 = require("../models/rack-color");
+function createGame(playerNames, startingEastPlayerIndex, rackColors = rack_color_1.RACK_COLOR_ORDER) {
     const players = playerNames.map((name, index) => ({
         id: (index + 1).toString(),
         name,
         score: 0,
-        seatPosition: index
+        seatPosition: index,
+        rackColor: rackColors[index]
     }));
     return {
         players,

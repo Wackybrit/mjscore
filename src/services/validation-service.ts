@@ -1,4 +1,5 @@
 import { Wind } from "../models/wind";
+import { RackColor } from "../models/rack-color";
 
 export interface ValidationResult {
     valid: boolean;
@@ -98,6 +99,23 @@ export function combineValidationResults(
     ...results: ValidationResult[]
 ): ValidationResult {
     const errors = results.flatMap(result => result.errors);
+
+    return {
+        valid: errors.length === 0,
+        errors
+    };
+}
+
+export function validateRackColors(
+    rackColors: RackColor[]
+): ValidationResult {
+    const errors: string[] = [];
+
+    const uniqueColors = new Set(rackColors);
+
+    if (uniqueColors.size !== 4) {
+        errors.push("Each player must have a unique rack color.");
+    }
 
     return {
         valid: errors.length === 0,

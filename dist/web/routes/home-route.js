@@ -1,44 +1,96 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.registerHomeRoute = registerHomeRoute;
-const reporting_service_1 = require("../../services/reporting-service");
+const game_utils_1 = require("../../models/game-utils");
+const rack_color_1 = require("../../models/rack-color");
+const wind_1 = require("../../models/wind");
 const page_template_1 = require("../page-template");
 function registerHomeRoute(app, getGame) {
     app.get("/", (_req, res) => {
         const game = getGame();
+        const eastPlayer = game.players[game.eastPlayerIndex];
+        const playerRows = game.players
+            .map(player => {
+            const wind = (0, game_utils_1.getPlayerWind)(player.seatPosition, game.eastPlayerIndex);
+            const scoreText = player.score > 0
+                ? `+${player.score}`
+                : `${player.score}`;
+            const isEast = player.id === eastPlayer?.id;
+            const playerNameStyle = isEast
+                ? `
+                        background-color: ${(0, rack_color_1.getRackColorCss)(player.rackColor)};
+                        font-weight: bold;
+                        border-left: 4px solid #333333;
+                      `
+                : `
+                        background-color: ${(0, rack_color_1.getRackColorCss)(player.rackColor)};
+                      `;
+            return `
+<tr>
+    <td style="${playerNameStyle}">
+        ${player.name}
+    </td>
+    <td>${wind} (${(0, wind_1.getWindNumber)(wind)})</td>
+    <td>${scoreText}</td>
+</tr>
+`;
+        })
+            .join("");
         res.send((0, page_template_1.renderPage)("MJScore", `
-<h1>MJScore</h1>
+<h2>Current Game Status</h2>
 
-<div class="report">
-    <pre>${(0, reporting_service_1.buildGameStatusReport)(game)}</pre>
+<div class="card">
+    <div style="margin-bottom: 0.75rem;">
+        <strong>Hand Number:</strong>
+        ${game.handNumber}
+    </div>
+
+    <table class="status-table">
+        <tr>
+            <td>
+                <strong>Round Wind:</strong>
+                ${game.roundWind}
+            </td>
+
+            <td>
+                <strong>East Wind:</strong>
+                <span
+                    style="
+                        background-color: ${eastPlayer
+            ? (0, rack_color_1.getRackColorCss)(eastPlayer.rackColor)
+            : "transparent"};
+                        padding: 0.15rem 0.5rem;
+                        border-radius: 4px;
+                    "
+                >
+                    ${eastPlayer?.name ?? "Unknown"}
+                </span>
+            </td>
+        </tr>
+    </table>
 </div>
 
-<p>
-    <a href="/score-hand">
-        <button>Score Completed Hand</button>
-    </a>
-</p>
-<p>
-    <a href="/history">
-        <button>View Hand History</button>
-    </a>
-</p>
-<p>
-    <a href="/save-game">
-        <button>Save Game As</button>
-    </a>
-</p>
+<table>
+    <thead>
+        <tr>
+            <th>Player</th>
+            <th>Seat Wind</th>
+            <th>Current Total</th>
+        </tr>
+    </thead>
 
-<p>
-    <a href="/load-game">
-        <button>Load Saved Game</button>
-    </a>
-</p>
-<p>
-    <a href="/new-game">
-        <button>Start New Game</button>
-    </a>
-</p>
+    <tbody>
+        ${playerRows}
+    </tbody>
+</table>
+
+<div class="actions">
+    <a href="/score-hand"><button>Score Completed Hand</button></a>
+    <a href="/history"><button>View Hand History</button></a>
+    <a href="/save-game"><button>Save Game As</button></a>
+    <a href="/load-game"><button>Load Saved Game</button></a>
+    <a href="/new-game"><button>Start New Game</button></a>
+</div>
 `));
     });
 }

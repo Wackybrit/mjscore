@@ -8,30 +8,31 @@ import {
     calculateNetResults,
     applyNetResultsToPlayers
 } from "./scoring-service";
+import { RackColor, RACK_COLOR_ORDER } from "../models/rack-color";
 
 export function createGame(
     playerNames: string[],
-    startingEastPlayerIndex: number
+    startingEastPlayerIndex: number,
+    rackColors: RackColor[] = RACK_COLOR_ORDER
 ): Game {
     const players: Player[] = playerNames.map((name, index) => ({
         id: (index + 1).toString(),
         name,
         score: 0,
-        seatPosition: index
+        seatPosition: index,
+        rackColor: rackColors[index]!
     }));
 
-return {
-    players,
-
-    eastPlayerIndex: startingEastPlayerIndex,
-    startingEastPlayerIndex,
-    eastAdvancementsThisRound: 0,
-
-    roundWind: Wind.East,
-    roundNumber: 1,
-    handNumber: 1,
-    hands: []
-};
+    return {
+        players,
+        eastPlayerIndex: startingEastPlayerIndex,
+        startingEastPlayerIndex,
+        eastAdvancementsThisRound: 0,
+        roundWind: Wind.East,
+        roundNumber: 1,
+        handNumber: 1,
+        hands: []
+    };
 }
 
 export function advanceAfterHand(
