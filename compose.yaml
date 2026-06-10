@@ -1,0 +1,10 @@
+services:
+  mjscore:
+    build: .
+    container_name: mjscore
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./data:/app/data
+    restart: unless-stopped
+    
