@@ -28,7 +28,7 @@ export function registerNewGameRoute(
             renderPage(
                 "New Game - MJScore",
                 `
-<h1>Start New Game</h1>
+<h2>Start New Game</h2>
 
 <form method="POST" action="/new-game">
     <h2>Players</h2>
@@ -41,6 +41,8 @@ export function registerNewGameRoute(
                     type="text" 
                     name="playerName_${index}" 
                     required
+                    pattern=".*\\S.*"
+                    title="Player name cannot be blank."
                     ${index === 0 ? "autofocus" : ""}
                 >
             </label>

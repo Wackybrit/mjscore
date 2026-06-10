@@ -19,7 +19,7 @@ export function registerSaveLoadRoute(
             renderPage(
                 "Save Game - MJScore",
                 `
-<h1>Save Current Game</h1>
+<h2>Save Current Game</h2>
 
 <form method="POST" action="/save-game">
     <label>
@@ -54,7 +54,7 @@ export function registerSaveLoadRoute(
             renderPage(
                 "Game Saved - MJScore",
                 `
-<h1>Game Saved</h1>
+<h2>Game Saved</h2>
 
 <p>Saved game as: <strong>${saveName}</strong></p>
 
@@ -75,7 +75,7 @@ export function registerSaveLoadRoute(
             renderPage(
                 "Load Game - MJScore",
                 `
-<h1>Load Saved Game</h1>
+<h2>Load Saved Game</h2>
 
 ${savedGames.length === 0
     ? "<p>No saved games found.</p>"

@@ -3,38 +3,38 @@
         {
             "id": "1",
             "name": "Tasha",
-            "score": 2,
+            "score": 476,
             "seatPosition": 0,
             "rackColor": "Blue"
         },
         {
             "id": "2",
             "name": "Will",
-            "score": 152,
+            "score": -332,
             "seatPosition": 1,
             "rackColor": "Green"
         },
         {
             "id": "3",
             "name": "Daniel",
-            "score": -82,
+            "score": 134,
             "seatPosition": 2,
             "rackColor": "Yellow"
         },
         {
             "id": "4",
             "name": "Nick",
-            "score": -72,
+            "score": -278,
             "seatPosition": 3,
             "rackColor": "Red"
         }
     ],
-    "eastPlayerIndex": 1,
+    "eastPlayerIndex": 3,
     "startingEastPlayerIndex": 0,
-    "eastAdvancementsThisRound": 1,
-    "roundWind": "West",
-    "roundNumber": 3,
-    "handNumber": 12,
+    "eastAdvancementsThisRound": 3,
+    "roundWind": "North",
+    "roundNumber": 4,
+    "handNumber": 18,
     "hands": [
         {
             "handNumber": 1,
@@ -329,6 +329,168 @@
                 {
                     "playerId": "4",
                     "handScore": 2,
+                    "mahJongg": false
+                }
+            ]
+        },
+        {
+            "handNumber": 12,
+            "roundWind": "West",
+            "eastPlayerId": "2",
+            "players": [
+                {
+                    "playerId": "1",
+                    "handScore": 22,
+                    "mahJongg": true
+                },
+                {
+                    "playerId": "2",
+                    "handScore": 10,
+                    "mahJongg": false
+                },
+                {
+                    "playerId": "3",
+                    "handScore": 6,
+                    "mahJongg": false
+                },
+                {
+                    "playerId": "4",
+                    "handScore": 16,
+                    "mahJongg": false
+                }
+            ]
+        },
+        {
+            "handNumber": 13,
+            "roundWind": "West",
+            "eastPlayerId": "3",
+            "players": [
+                {
+                    "playerId": "1",
+                    "handScore": 4,
+                    "mahJongg": false
+                },
+                {
+                    "playerId": "2",
+                    "handScore": 4,
+                    "mahJongg": false
+                },
+                {
+                    "playerId": "3",
+                    "handScore": 16,
+                    "mahJongg": false
+                },
+                {
+                    "playerId": "4",
+                    "handScore": 32,
+                    "mahJongg": true
+                }
+            ]
+        },
+        {
+            "handNumber": 14,
+            "roundWind": "West",
+            "eastPlayerId": "4",
+            "players": [
+                {
+                    "playerId": "1",
+                    "handScore": 20,
+                    "mahJongg": false
+                },
+                {
+                    "playerId": "2",
+                    "handScore": 22,
+                    "mahJongg": false
+                },
+                {
+                    "playerId": "3",
+                    "handScore": 22,
+                    "mahJongg": true
+                },
+                {
+                    "playerId": "4",
+                    "handScore": 16,
+                    "mahJongg": false
+                }
+            ]
+        },
+        {
+            "handNumber": 15,
+            "roundWind": "North",
+            "eastPlayerId": "1",
+            "players": [
+                {
+                    "playerId": "1",
+                    "handScore": 4,
+                    "mahJongg": false
+                },
+                {
+                    "playerId": "2",
+                    "handScore": 16,
+                    "mahJongg": false
+                },
+                {
+                    "playerId": "3",
+                    "handScore": 8,
+                    "mahJongg": false
+                },
+                {
+                    "playerId": "4",
+                    "handScore": 32,
+                    "mahJongg": true
+                }
+            ]
+        },
+        {
+            "handNumber": 16,
+            "roundWind": "North",
+            "eastPlayerId": "2",
+            "players": [
+                {
+                    "playerId": "1",
+                    "handScore": 350,
+                    "mahJongg": false
+                },
+                {
+                    "playerId": "2",
+                    "handScore": 64,
+                    "mahJongg": false
+                },
+                {
+                    "playerId": "3",
+                    "handScore": 40,
+                    "mahJongg": true
+                },
+                {
+                    "playerId": "4",
+                    "handScore": 12,
+                    "mahJongg": false
+                }
+            ]
+        },
+        {
+            "handNumber": 17,
+            "roundWind": "North",
+            "eastPlayerId": "3",
+            "players": [
+                {
+                    "playerId": "1",
+                    "handScore": 2,
+                    "mahJongg": false
+                },
+                {
+                    "playerId": "2",
+                    "handScore": 44,
+                    "mahJongg": true
+                },
+                {
+                    "playerId": "3",
+                    "handScore": 88,
+                    "mahJongg": false
+                },
+                {
+                    "playerId": "4",
+                    "handScore": 102,
                     "mahJongg": false
                 }
             ]

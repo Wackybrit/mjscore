@@ -69,7 +69,11 @@ export function registerHistoryRoute(
 
                 return `
 <tr>
-    <td>${index + 1}</td>
+    <td>
+        <a href="/hand/${hand.handNumber}">
+            ${index + 1}
+        </a>
+    </td>
     <td>${hand.roundWind}</td>
     <td>${getPlayerName(game, hand.eastPlayerId)}</td>
     ${scoreCells}
@@ -97,7 +101,7 @@ export function registerHistoryRoute(
             renderPage(
                 "Hand History - MJScore",
                 `
-<h1>Hand History</h1>
+<h2>Hand History</h2>
 
 <table>
     <thead>

@@ -40,7 +40,7 @@ export function renderPage(
         }
 
         main {
-            padding: 2rem;
+            padding: 0.5rem 2rem 1rem 2rem;
         }
 
         .card {
@@ -110,7 +110,90 @@ export function renderPage(
             padding: 0 8rem 0 0;
             text-align: left;
         }
-    </style>
+
+        .three-column-section {
+            display: flex;
+            gap: 6rem;
+            align-items: flex-start;
+        }
+
+        .coin {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 1.75rem;
+            height: 1.75rem;
+            border-radius: 50%;
+            margin-right: 0.25rem;
+            font-size: 0.8rem;
+            font-weight: bold;
+            border: 1px solid #555555;
+        }
+
+        .coin-red {
+            background-color: #d9534f;
+            color: white;
+        }
+
+        .coin-yellow {
+            background-color: #f0d94f;
+            color: black;
+        }
+
+        .coin-green {
+            background-color: #5cb85c;
+            color: black;
+        }
+
+        .coin-blue {
+            background-color: #337ab7;
+            color: white;
+        }
+
+        .coin-white {
+            background-color: white;
+            color: black;
+        }
+        
+        .primary-action {
+            margin-top: 2rem;
+            margin-left: 4rem;
+        }
+
+        .primary-action button {
+            font-size: 1.25rem;
+            font-weight: bold;
+            padding: 0.75rem 3rem;
+            min-width: 300px;
+
+            border: 1px solid #666666;
+            border-radius: 8px;
+
+            background: linear-gradient(
+                to bottom,
+                #ffffff,
+                #dddddd
+            );
+
+            box-shadow:
+                0 4px 0 #999999,
+                0 5px 10px rgba(0, 0, 0, 0.15);
+        }
+        .primary-action button:active {
+            transform: translateY(3px);
+
+            box-shadow:
+                0 1px 0 #999999,
+                0 2px 4px rgba(0, 0, 0, 0.15);
+        }
+        .primary-action button:hover {
+            background: linear-gradient(
+                to bottom,
+                #ffffff,
+                #d0d0d0
+            );
+        }
+        </style>
 </head>
 <body>
     <header>

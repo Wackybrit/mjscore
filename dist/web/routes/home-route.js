@@ -84,14 +84,11 @@ function registerHomeRoute(app, getGame) {
     </tbody>
 </table>
 
-<div class="actions">
-    <a href="/score-hand"><button>Score Completed Hand</button></a>
-    <a href="/history"><button>View Hand History</button></a>
-    <a href="/save-game"><button>Save Game As</button></a>
-    <a href="/load-game"><button>Load Saved Game</button></a>
-    <a href="/new-game"><button>Start New Game</button></a>
-</div>
-`));
+<div class="primary-action">
+    <a href="/score-hand">
+        <button>🀄 MAH-JONGG!</button>
+    </a>
+</div>`));
     });
 }
 //# sourceMappingURL=home-route.js.map

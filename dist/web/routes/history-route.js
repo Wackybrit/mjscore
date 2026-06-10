@@ -43,7 +43,11 @@ function registerHistoryRoute(app, getGame) {
                 .join("");
             return `
 <tr>
-    <td>${index + 1}</td>
+    <td>
+        <a href="/hand/${hand.handNumber}">
+            ${index + 1}
+        </a>
+    </td>
     <td>${hand.roundWind}</td>
     <td>${(0, game_utils_1.getPlayerName)(game, hand.eastPlayerId)}</td>
     ${scoreCells}
@@ -60,7 +64,7 @@ function registerHistoryRoute(app, getGame) {
         })
             .join("");
         res.send((0, page_template_1.renderPage)("Hand History - MJScore", `
-<h1>Hand History</h1>
+<h2>Hand History</h2>
 
 <table>
     <thead>

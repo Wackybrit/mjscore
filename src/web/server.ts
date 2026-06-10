@@ -8,6 +8,7 @@ import { registerHistoryRoute } from "./routes/history-route";
 import { loadGame, saveGame } from "../services/persistence-service";
 import { registerSaveLoadRoute } from "./routes/save-load-route";
 import { registerNewGameRoute } from "./routes/new-game-route";
+import { registerHandDetailRoute } from "./routes/hand-detail-route";
 
 const app = express();
 const PORT = 3000;
@@ -37,6 +38,7 @@ registerScoreHandRoute(app, getGame, setGame);
 registerHistoryRoute(app, getGame);
 registerSaveLoadRoute(app, getGame, setGame);
 registerNewGameRoute(app, setGame);
+registerHandDetailRoute(app, getGame);
 
 export function startServer(): void {
     app.listen(PORT, () => {

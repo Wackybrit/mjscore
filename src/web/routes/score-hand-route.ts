@@ -1,15 +1,19 @@
 import { Express } from "express";
 
 import { Game } from "../../models/game";
+import { getPlayerWind } from "../../models/game-utils";
 import { HandResult } from "../../models/hand-result";
+import { getRackColorCss } from "../../models/rack-color";
+import { getWindNumber } from "../../models/wind";
 import { recordHand } from "../../services/game-service";
 import { buildHandSummaryReport } from "../../services/reporting-service";
-import { renderPage } from "../page-template";
 import {
     combineValidationResults,
     validateHandScores,
+    validateMahJonggScore,
     validateMahJonggWinner
 } from "../../services/validation-service";
+import { renderPage } from "../page-template";
 
 export function registerScoreHandRoute(
     app: Express,
@@ -18,48 +22,128 @@ export function registerScoreHandRoute(
 ): void {
     app.get("/score-hand", (_req, res) => {
         const game = getGame();
+        const eastPlayer = game.players[game.eastPlayerIndex];
+
+        const scoreRows = game.players
+            .map((player, index) => {
+                const wind = getPlayerWind(
+                    player.seatPosition,
+                    game.eastPlayerIndex
+                );
+
+                return `
+<tr>
+    <td style="background-color: ${getRackColorCss(player.rackColor)};">
+        ${player.name}
+    </td>
+    <td>${wind} (${getWindNumber(wind)})</td>
+    <td>
+        <input 
+            type="number" 
+            name="score_${player.id}" 
+            min="0"
+            step="2"
+            required
+            ${index === 0 ? "autofocus" : ""}
+        >
+    </td>
+</tr>
+`;
+            })
+            .join("");
+
+        const winnerRows = game.players
+            .map(player => `
+<tr>
+    <td style="background-color: ${getRackColorCss(player.rackColor)};">
+        ${player.name}
+    </td>
+    <td>
+        <input 
+            type="radio" 
+            name="winnerId" 
+            value="${player.id}" 
+            required
+        >
+    </td>
+</tr>
+`)
+            .join("");
 
         res.send(
             renderPage(
                 "Score Hand - MJScore",
                 `
-<h1>Score Completed Hand</h1>
+<h2>Score Completed Hand</h2>
+
+<div class="card">
+    <div style="margin-bottom: 0.75rem;">
+        <strong>Hand Number:</strong>
+        ${game.handNumber}
+    </div>
+
+    <table class="status-table">
+        <tr>
+            <td>
+                <strong>Round Wind:</strong>
+                ${game.roundWind}
+            </td>
+
+            <td>
+                <strong>East Wind:</strong>
+                <span
+                    style="
+                        background-color: ${eastPlayer
+                            ? getRackColorCss(eastPlayer.rackColor)
+                            : "transparent"};
+                        padding: 0.15rem 0.5rem;
+                        border-radius: 4px;
+                    "
+                >
+                    ${eastPlayer?.name ?? "Unknown"}
+                </span>
+            </td>
+        </tr>
+    </table>
+</div>
 
 <form method="POST" action="/score-hand">
-    ${game.players.map((player, index) => `
-        <div>
-            <label>
-                ${player.name} Score:
-                <input 
-                    type="number" 
-                    name="score_${player.id}" 
-                    min="0"
-                    step="2"
-                    required
-                    ${index === 0 ? "autofocus" : ""}
-                >
-            </label>
+    <h3>Scores</h3>
 
-            <label>
-                <input 
-                    type="radio" 
-                    name="winnerId" 
-                    value="${player.id}" 
-                    required
-                >
-                Mah-Jongg
-            </label>
-        </div>
-    `).join("")}
+    <table>
+        <thead>
+            <tr>
+                <th>Player</th>
+                <th>Seat Wind</th>
+                <th>Score</th>
+            </tr>
+        </thead>
 
-    <p>
+        <tbody>
+            ${scoreRows}
+        </tbody>
+    </table>
+
+    <h3>Mah-Jongg Winner</h3>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Player</th>
+                <th>Mah-Jongg</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            ${winnerRows}
+        </tbody>
+    </table>
+
+    <div class="actions">
         <button type="submit">Score Hand</button>
-    </p>
+        <a href="/"><button type="button">Back to Current Game</button></a>
+    </div>
 </form>
-
-<p>
-    <a href="/">Back to Current Game</a>
-</p>
 `
             )
         );
@@ -67,7 +151,7 @@ export function registerScoreHandRoute(
 
     app.post("/score-hand", (req, res) => {
         const game = getGame();
-        const winnerId = req.body.winnerId as string;
+        const winnerId = req.body.winnerId as string | undefined;
 
         const scores = game.players.map(player =>
             Number(req.body[`score_${player.id}`])
@@ -75,7 +159,12 @@ export function registerScoreHandRoute(
 
         const validation = combineValidationResults(
             validateHandScores(scores),
-            validateMahJonggWinner(winnerId)
+            validateMahJonggWinner(winnerId),
+            validateMahJonggScore(
+                scores,
+                winnerId,
+                game.players.map(player => player.id)
+            )
         );
 
         if (!validation.valid) {
@@ -94,9 +183,7 @@ export function registerScoreHandRoute(
 </ul>
 
 <p>
-    <a href="/score-hand">
-        <button>Back to Score Entry</button>
-    </a>
+    <a href="/score-hand"><button>Back to Score Entry</button></a>
 </p>
 `
                 )
@@ -128,23 +215,6 @@ export function registerScoreHandRoute(
 
         setGame(updatedGame);
 
-        res.send(
-            renderPage(
-                "Hand Summary - MJScore",
-                `
-<h1>Hand Summary</h1>
-
-<div class="report">
-    <pre>${report}</pre>
-</div>
-
-<p>
-    <a href="/">
-        <button>Continue to Next Hand</button>
-    </a>
-</p>
-`
-            )
-        );
+        res.redirect(`/hand/${handResult.handNumber}`);
     });
 }

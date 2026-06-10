@@ -122,3 +122,36 @@ export function validateRackColors(
         errors
     };
 }
+
+export function validateMahJonggScore(
+    scores: number[],
+    winnerId: string | undefined,
+    playerIds: string[]
+): ValidationResult {
+    const errors: string[] = [];
+
+    if (!winnerId) {
+        return {
+            valid: true,
+            errors
+        };
+    }
+
+    const winnerIndex = playerIds.findIndex(
+        id => id === winnerId
+    );
+
+    if (
+        winnerIndex >= 0 &&
+        scores[winnerIndex]! < 22
+    ) {
+        errors.push(
+            "A Mah-Jongg hand must score at least 22 points."
+        );
+    }
+
+    return {
+        valid: errors.length === 0,
+        errors
+    };
+}
