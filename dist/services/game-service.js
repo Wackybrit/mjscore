@@ -3,6 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.createGame = createGame;
 exports.advanceAfterHand = advanceAfterHand;
 exports.recordHand = recordHand;
+exports.rebuildGameFromHands = rebuildGameFromHands;
 const wind_1 = require("../models/wind");
 const game_utils_1 = require("../models/game-utils");
 const scoring_service_1 = require("./scoring-service");
@@ -72,5 +73,30 @@ function recordHand(game, handResult) {
         throw new Error("Cannot record hand: no Mah-Jongg winner found.");
     }
     return advanceAfterHand(updatedGame, winner.playerId);
+}
+function rebuildGameFromHands(game, hands) {
+    let rebuiltGame = {
+        ...game,
+        players: game.players.map(player => ({
+            ...player,
+            score: 0
+        })),
+        eastPlayerIndex: game.startingEastPlayerIndex,
+        eastAdvancementsThisRound: 0,
+        roundWind: wind_1.Wind.East,
+        roundNumber: 1,
+        handNumber: 1,
+        hands: []
+    };
+    hands.forEach(hand => {
+        const normalizedHand = {
+            ...hand,
+            handNumber: rebuiltGame.handNumber,
+            roundWind: rebuiltGame.roundWind,
+            eastPlayerId: rebuiltGame.players[rebuiltGame.eastPlayerIndex].id
+        };
+        rebuiltGame = recordHand(rebuiltGame, normalizedHand);
+    });
+    return rebuiltGame;
 }
 //# sourceMappingURL=game-service.js.map

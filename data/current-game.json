@@ -3,7 +3,7 @@
         {
             "id": "1",
             "name": "Tasha",
-            "score": 174,
+            "score": 216,
             "seatPosition": 0,
             "rackColor": "Blue"
         },
@@ -16,15 +16,15 @@
         },
         {
             "id": "3",
-            "name": "Daniel",
-            "score": -80,
+            "name": "Talia",
+            "score": -94,
             "seatPosition": 2,
             "rackColor": "Yellow"
         },
         {
             "id": "4",
             "name": "Nick",
-            "score": -386,
+            "score": -414,
             "seatPosition": 3,
             "rackColor": "Red"
         }
@@ -502,7 +502,7 @@
             "players": [
                 {
                     "playerId": "1",
-                    "handScore": 10,
+                    "handScore": 24,
                     "mahJongg": false
                 },
                 {

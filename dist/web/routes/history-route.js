@@ -1,7 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.registerHistoryRoute = registerHistoryRoute;
-const game_utils_1 = require("../../models/game-utils");
 const scoring_service_1 = require("../../services/scoring-service");
 const page_template_1 = require("../page-template");
 const rack_color_1 = require("../../models/rack-color");
@@ -49,8 +48,19 @@ function registerHistoryRoute(app, getGame) {
         </a>
     </td>
     <td>${hand.roundWind}</td>
-    <td>${(0, game_utils_1.getPlayerName)(game, hand.eastPlayerId)}</td>
+    ${(() => {
+                const eastPlayer = game.players.find(player => player.id === hand.eastPlayerId);
+                if (!eastPlayer) {
+                    return "<td>Unknown</td>";
+                }
+                return `
+    <td style="background-color: ${(0, rack_color_1.getRackColorCss)(eastPlayer.rackColor)};">
+        ${eastPlayer.name}
+    </td>
+    `;
+            })()}    
     ${scoreCells}
+    <td class="spacer-column"></td>
     ${runningTotalCells}
 </tr>
 `;
@@ -73,12 +83,14 @@ function registerHistoryRoute(app, getGame) {
             <th rowspan="2">Round Wind</th>
             <th rowspan="2">East Wind</th>
             <th colspan="${game.players.length}">Hand Scores</th>
+            <th class="spacer-column"></th>
             <th colspan="${game.players.length}">Running Totals</th>
         </tr>
         <tr>
             ${game.players
             .map(player => `<th>${player.name}</th>`)
             .join("")}
+            <th class="spacer-column"></th>
             ${game.players
             .map(player => `<th>${player.name}</th>`)
             .join("")}
