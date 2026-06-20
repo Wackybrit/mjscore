@@ -158,7 +158,30 @@ export function registerHandDetailRoute(
             })
             .join("");
 
-        const paymentRows = settlements
+        const getPlayerSortOrder = (
+            playerId: string
+        ): number => {
+            return game.players.findIndex(
+                player => player.id === playerId
+            );
+        };
+
+        const sortedSettlements = [...settlements].sort((a, b) => {
+            const fromCompare =
+                getPlayerSortOrder(a.fromPlayerId) -
+                getPlayerSortOrder(b.fromPlayerId);
+
+            if (fromCompare !== 0) {
+                return fromCompare;
+            }
+
+            return (
+                getPlayerSortOrder(a.toPlayerId) -
+                getPlayerSortOrder(b.toPlayerId)
+            );
+        });
+
+            const paymentRows = sortedSettlements
             .map(settlement => {
                 const fromPlayer = game.players.find(
                     player => player.id === settlement.fromPlayerId
@@ -291,13 +314,13 @@ export function registerHandDetailRoute(
     </div>
 
     <div>
-        <h3>Net Results</h3>
+        <h3>Hand Results</h3>
 
         <table>
             <thead>
                 <tr>
                     <th>Player</th>
-                    <th>Net</th>
+                    <th>Change</th>
                 </tr>
             </thead>
 
@@ -308,7 +331,7 @@ export function registerHandDetailRoute(
     </div>
 
     <div>
-        <h3>Totals</h3>
+        <h3>Current Totals</h3>
 
         <table>
             <thead>

@@ -3,28 +3,28 @@
         {
             "id": "1",
             "name": "Tasha",
-            "score": 216,
+            "score": 408,
             "seatPosition": 0,
             "rackColor": "Blue"
         },
         {
             "id": "2",
             "name": "Will",
-            "score": 292,
+            "score": 224,
             "seatPosition": 1,
             "rackColor": "Green"
         },
         {
             "id": "3",
             "name": "Talia",
-            "score": -94,
+            "score": -138,
             "seatPosition": 2,
             "rackColor": "Yellow"
         },
         {
             "id": "4",
             "name": "Nick",
-            "score": -414,
+            "score": -494,
             "seatPosition": 3,
             "rackColor": "Red"
         }
@@ -34,7 +34,7 @@
     "eastAdvancementsThisRound": 0,
     "roundWind": "East",
     "roundNumber": 5,
-    "handNumber": 19,
+    "handNumber": 20,
     "hands": [
         {
             "handNumber": 1,
@@ -518,6 +518,33 @@
                 {
                     "playerId": "4",
                     "handScore": 72,
+                    "mahJongg": false
+                }
+            ]
+        },
+        {
+            "handNumber": 19,
+            "roundWind": "East",
+            "eastPlayerId": "1",
+            "players": [
+                {
+                    "playerId": "1",
+                    "handScore": 32,
+                    "mahJongg": true
+                },
+                {
+                    "playerId": "2",
+                    "handScore": 8,
+                    "mahJongg": false
+                },
+                {
+                    "playerId": "3",
+                    "handScore": 16,
+                    "mahJongg": false
+                },
+                {
+                    "playerId": "4",
+                    "handScore": 4,
                     "mahJongg": false
                 }
             ]
