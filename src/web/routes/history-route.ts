@@ -75,8 +75,23 @@ export function registerHistoryRoute(
         </a>
     </td>
     <td>${hand.roundWind}</td>
-    <td>${getPlayerName(game, hand.eastPlayerId)}</td>
+    ${(() => {
+        const eastPlayer = game.players.find(
+            player => player.id === hand.eastPlayerId
+        );
+
+        if (!eastPlayer) {
+            return "<td>Unknown</td>";
+        }
+
+        return `
+    <td style="background-color: ${getRackColorCss(eastPlayer.rackColor)};">
+        ${eastPlayer.name}
+    </td>
+    `;
+    })()}    
     ${scoreCells}
+    <td class="spacer-column"></td>
     ${runningTotalCells}
 </tr>
 `;
@@ -110,12 +125,14 @@ export function registerHistoryRoute(
             <th rowspan="2">Round Wind</th>
             <th rowspan="2">East Wind</th>
             <th colspan="${game.players.length}">Hand Scores</th>
+            <th class="spacer-column"></th>
             <th colspan="${game.players.length}">Running Totals</th>
         </tr>
         <tr>
             ${game.players
                 .map(player => `<th>${player.name}</th>`)
                 .join("")}
+            <th class="spacer-column"></th>
             ${game.players
                 .map(player => `<th>${player.name}</th>`)
                 .join("")}

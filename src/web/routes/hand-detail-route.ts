@@ -63,8 +63,9 @@ export function registerHandDetailRoute(
         const winner = getMahJonggPlayer(hand.players);
         const settlements = calculateSettlements(hand);
         const netResults = calculateNetResults(settlements);
-
         const runningTotals = new Map<string, number>();
+        const lastHand = game.hands.at(-1);
+        const canEditHand = lastHand?.handNumber === hand.handNumber;
 
         game.players.forEach(player => {
             runningTotals.set(player.id, 0);
@@ -188,7 +189,8 @@ export function registerHandDetailRoute(
             })
             .join("");
 
-        const netRows = netResults
+        const netRows = [...netResults]
+            .sort((a,b) => b.amount - a.amount)
             .map(result => {
                 const player = game.players.find(
                     currentPlayer => currentPlayer.id === result.playerId
@@ -342,10 +344,24 @@ export function registerHandDetailRoute(
     </tbody>
 </table>
 
-<div class="actions">
-    <a href="/"><button>Current Game</button></a>
-    <a href="/history"><button>Game History</button></a>
+<div class="next-hand-action">
+    <a href="/">
+        <button>
+            <span style="color: #0b7a0b;">🀅</span>
+            Next Hand
+        </button>
+    </a>
 </div>
+
+${canEditHand
+    ? `
+<div class="actions">
+    <a href="/edit-last-hand">
+        <button>Edit Last Hand</button>
+    </a>
+</div>
+`
+    : ""}
 `
             )
         );

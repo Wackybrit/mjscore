@@ -193,6 +193,48 @@ export function renderPage(
                 #d0d0d0
             );
         }
+
+        .next-hand-action {
+            margin-top: 2rem;
+            margin-left: 6rem;
+        }
+
+        .next-hand-action button {
+            font-size: 1.15rem;
+            font-weight: bold;
+
+            padding: 0.6rem 2.5rem;
+            min-width: 220px;
+
+            border: 1px solid #666666;
+            border-radius: 8px;
+
+            background: linear-gradient(
+                to bottom,
+                #ffffff,
+                #dddddd
+            );
+
+            box-shadow:
+                0 4px 0 #999999,
+                0 5px 10px rgba(0, 0, 0, 0.15);
+        }
+
+        .next-hand-action button:active {
+            transform: translateY(3px);
+
+            box-shadow:
+                0 1px 0 #999999,
+                0 2px 4px rgba(0, 0, 0, 0.15);
+        }
+
+        .spacer-column {
+            border: none !important;
+            width: 2rem;
+            min-width: 2rem;
+            background: transparent !important;
+        }
+        
         </style>
 </head>
 <body>
@@ -203,6 +245,7 @@ export function renderPage(
             <a href="/">Current Game</a>
             <a href="/score-hand">Score Hand</a>
             <a href="/history">History</a>
+            <a href="/edit-players">Players</a>
             <a href="/save-game">Save</a>
             <a href="/load-game">Load</a>
             <a href="/new-game">New Game</a>

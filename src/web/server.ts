@@ -9,6 +9,8 @@ import { loadGame, saveGame } from "../services/persistence-service";
 import { registerSaveLoadRoute } from "./routes/save-load-route";
 import { registerNewGameRoute } from "./routes/new-game-route";
 import { registerHandDetailRoute } from "./routes/hand-detail-route";
+import { registerEditPlayersRoute } from "./routes/edit-players-route";
+import { registerEditLastHandRoute } from "./routes/edit-last-hand-route";
 
 const app = express();
 const PORT = 3000;
@@ -39,6 +41,8 @@ registerHistoryRoute(app, getGame);
 registerSaveLoadRoute(app, getGame, setGame);
 registerNewGameRoute(app, setGame);
 registerHandDetailRoute(app, getGame);
+registerEditPlayersRoute(app, getGame, setGame);
+registerEditLastHandRoute(app, getGame, setGame);
 
 export function startServer(): void {
     app.listen(PORT, () => {

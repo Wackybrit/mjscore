@@ -109,3 +109,38 @@ export function recordHand(
         winner.playerId
     );
 }
+
+export function rebuildGameFromHands(
+    game: Game,
+    hands: HandResult[]
+): Game {
+    let rebuiltGame: Game = {
+        ...game,
+        players: game.players.map(player => ({
+            ...player,
+            score: 0
+        })),
+        eastPlayerIndex: game.startingEastPlayerIndex,
+        eastAdvancementsThisRound: 0,
+        roundWind: Wind.East,
+        roundNumber: 1,
+        handNumber: 1,
+        hands: []
+    };
+
+    hands.forEach(hand => {
+        const normalizedHand: HandResult = {
+            ...hand,
+            handNumber: rebuiltGame.handNumber,
+            roundWind: rebuiltGame.roundWind,
+            eastPlayerId: rebuiltGame.players[rebuiltGame.eastPlayerIndex]!.id
+        };
+
+        rebuiltGame = recordHand(
+            rebuiltGame,
+            normalizedHand
+        );
+    });
+
+    return rebuiltGame;
+}
