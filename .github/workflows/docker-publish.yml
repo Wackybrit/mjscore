@@ -42,7 +42,7 @@ jobs:
           '
           docker run -d --name mjscore-test -p 127.0.0.1:3000:3000 -v "$RUNNER_TEMP/mjscore-data:/app/data" mjscore:test
           trap 'docker logs mjscore-test; docker rm -f mjscore-test' EXIT
-          curl --fail --retry 15 --retry-connrefused --retry-delay 2 http://127.0.0.1:3000/ > /dev/null
+          curl --fail --retry 15 --retry-all-errors --retry-delay 2 --connect-timeout 2 --max-time 5 http://127.0.0.1:3000/ > /dev/null
           docker exec mjscore-test node -e 'const assert=require("node:assert/strict");const p=require("./dist/services/persistence-service");assert.deepEqual(p.loadGame(),p.loadSavedGame("ci-save"));'
           docker compose config --quiet
       - name: Log in to GHCR
