@@ -23,3 +23,8 @@ Desktop.ini
 
 # TypeScript build cache
 *.tsbuildinfo
+
+# Deployment example and macOS metadata
+!.env.example
+.DS_Store
+._*

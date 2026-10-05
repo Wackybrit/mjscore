@@ -1,0 +1,61 @@
+name: Build and publish Docker image
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: docker-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  docker:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v6
+      - uses: docker/setup-buildx-action@v4
+      - name: Build image for verification
+        uses: docker/build-push-action@v7
+        with:
+          context: .
+          load: true
+          tags: mjscore:test
+          platforms: linux/amd64
+      - name: Verify HTTP and persistence
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/mjscore-data"
+          docker run --rm --entrypoint node -v "$RUNNER_TEMP/mjscore-data:/app/data" mjscore:test -e '
+            const assert = require("node:assert/strict");
+            const p = require("./dist/services/persistence-service");
+            const { createGame } = require("./dist/services/game-service");
+            const game = createGame(["A", "B", "C", "D"], 0);
+            p.saveGame(game); p.saveGameAs(game, "ci-save");
+            assert.deepEqual(p.loadGame(), game);
+            assert.deepEqual(p.loadSavedGame("ci-save"), game);
+          '
+          docker run -d --name mjscore-test -p 127.0.0.1:3000:3000 -v "$RUNNER_TEMP/mjscore-data:/app/data" mjscore:test
+          trap 'docker logs mjscore-test; docker rm -f mjscore-test' EXIT
+          curl --fail --retry 15 --retry-connrefused --retry-delay 2 http://127.0.0.1:3000/ > /dev/null
+          docker exec mjscore-test node -e 'const assert=require("node:assert/strict");const p=require("./dist/services/persistence-service");assert.deepEqual(p.loadGame(),p.loadSavedGame("ci-save"));'
+          docker compose config --quiet
+      - name: Log in to GHCR
+        if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+        uses: docker/login-action@v4
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Publish verified image
+        if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+        run: |
+          docker tag mjscore:test ghcr.io/wackybrit/mjscore:sha-${{ github.sha }}
+          docker tag mjscore:test ghcr.io/wackybrit/mjscore:latest
+          docker push ghcr.io/wackybrit/mjscore:sha-${{ github.sha }}
+          docker push ghcr.io/wackybrit/mjscore:latest

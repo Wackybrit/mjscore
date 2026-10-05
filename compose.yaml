@@ -1,10 +1,13 @@
 services:
   mjscore:
-    build: .
+    image: ${MJSCORE_IMAGE:-ghcr.io/wackybrit/mjscore:latest}
     container_name: mjscore
     ports:
-      - "3000:3000"
+      - "${MJSCORE_PORT:-3000}:3000"
     volumes:
-      - ./data:/app/data
+      - type: bind
+        source: ${MJSCORE_DATA_DIR:-/mnt/user/appdata/mjscore/data}
+        target: /app/data
+        bind:
+          create_host_path: false
     restart: unless-stopped
-    

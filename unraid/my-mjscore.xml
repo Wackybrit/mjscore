@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<Container version="2">
+  <Name>mjscore</Name>
+  <Repository>ghcr.io/wackybrit/mjscore:latest</Repository>
+  <Registry>https://github.com/Wackybrit/mjscore/pkgs/container/mjscore</Registry>
+  <Network>bridge</Network>
+  <Privileged>false</Privileged>
+  <Overview>British Mahjong scoring. Keep all saved games in the persistent /app/data mapping.</Overview>
+  <WebUI>http://[IP]:[PORT:3000]/</WebUI>
+  <Config Name="Web interface" Target="3000" Default="3000" Mode="tcp" Description="Web interface port" Type="Port" Display="always" Required="true" Mask="false">3000</Config>
+  <Config Name="Game data" Target="/app/data" Default="/mnt/user/appdata/mjscore/data" Mode="rw" Description="Existing persistent game data directory" Type="Path" Display="always" Required="true" Mask="false">/mnt/user/appdata/mjscore/data</Config>
+</Container>

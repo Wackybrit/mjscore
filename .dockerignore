@@ -2,7 +2,9 @@ node_modules
 dist
 data
 .git
-.gitignore
-Dockerfile
-compose.yaml
+.github
+.env
+.env.*
 *.log
+.DS_Store
+._*
