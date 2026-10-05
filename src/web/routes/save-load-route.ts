@@ -7,6 +7,7 @@ import {
     saveGame,
     saveGameAs
 } from "../../services/persistence-service";
+import { escapeHtml, registerSavedGameCleanupRoutes } from "./saved-game-cleanup-route";
 import { renderPage } from "../page-template";
 
 export function registerSaveLoadRoute(
@@ -14,6 +15,7 @@ export function registerSaveLoadRoute(
     getGame: () => Game,
     setGame: (game: Game) => void
 ): void {
+    registerSavedGameCleanupRoutes(app);
     app.get("/save-game", (_req, res) => {
         res.send(
             renderPage(
@@ -56,7 +58,7 @@ export function registerSaveLoadRoute(
                 `
 <h2>Game Saved</h2>
 
-<p>Saved game as: <strong>${saveName}</strong></p>
+<p>Saved game as: <strong>${escapeHtml(saveName)}</strong></p>
 
 <p>
     <a href="/">
@@ -76,6 +78,8 @@ export function registerSaveLoadRoute(
                 "Load Game - MJScore",
                 `
 <h2>Load Saved Game</h2>
+<p>Remove opens a confirmation page. Removed saves can be restored.</p>
+<p><a href="/removed-games">View Removed games</a></p>
 
 ${savedGames.length === 0
     ? "<p>No saved games found.</p>"
@@ -84,9 +88,10 @@ ${savedGames.length === 0
     ${savedGames.map(saveName => `
         <div>
             <label>
-                <input type="radio" name="saveName" value="${saveName}" required>
-                ${saveName}
+                <input type="radio" name="saveName" value="${escapeHtml(saveName)}" required>
+                ${escapeHtml(saveName)}
             </label>
+            <a href="/remove-saved-game?name=${encodeURIComponent(saveName)}">Remove…</a>
         </div>
     `).join("")}
 

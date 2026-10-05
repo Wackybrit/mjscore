@@ -4,7 +4,8 @@ COPY package*.json ./
 RUN npm ci
 COPY tsconfig.json ./
 COPY src ./src
-RUN npm run build
+COPY tests ./tests
+RUN npm test
 
 FROM node:24-alpine AS runtime
 WORKDIR /app

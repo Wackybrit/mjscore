@@ -113,3 +113,17 @@ The service has no authentication; retain the existing trusted-LAN deployment.
 - https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-container-registry
 - https://docs.docker.com/reference/compose-file/services/
 - https://docs.unraid.net/unraid-os/using-unraid-to/run-docker-containers/managing-and-customizing-containers/
+
+## Saved-game cleanup (1.2.0)
+
+On Load Saved Game, select Remove beside a save. Review its name, players, hand
+count and saved time, then type its exact name to confirm. A changed file or expired
+confirmation must be reviewed again. Removing a saved copy never changes the active
+game. Removed copies are stored under `/app/data/removed-games`, on the same persistent
+volume as your saves, and can be restored from Removed games. Restore refuses to
+overwrite an existing save of the same name. There is no permanent-delete button
+or automatic expiry; removed copies still use disk space and should remain included
+in data backups. This is intended for cleanup of the save list, not freeing storage.
+
+`npm test` compiles and tests confirmation, file selection, persistence and restoration
+using temporary data. Docker builds run these checks before publishing.
