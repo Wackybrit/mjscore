@@ -20,6 +20,9 @@ export interface HandPlayerResult {
 }
 
 export interface HandResult {
+    /** Dead hands have zero scores and no winner; winds stay in place. */
+    deadHand?: boolean;
+
     /**
      * Sequential hand number.
      */

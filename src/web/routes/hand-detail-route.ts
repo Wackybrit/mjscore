@@ -1,3 +1,4 @@
+import { isGameOver } from "../../services/game-service";
 import { escapeHtml } from "../html-utils";
 import { Express } from "express";
 
@@ -32,6 +33,7 @@ export function registerHandDetailRoute(
 ): void {
     app.get("/hand/:handNumber", (req, res) => {
         const game = getGame();
+        res.set("Cache-Control", "no-store");
 
         const handNumber = Number(
             req.params.handNumber
@@ -61,9 +63,11 @@ export function registerHandDetailRoute(
             return;
         }
 
-        const winner = getMahJonggPlayer(hand.players);
+        const winner = hand.deadHand ? null : getMahJonggPlayer(hand.players);
         const settlements = calculateSettlements(hand);
-        const netResults = calculateNetResults(settlements);
+        const netResults = hand.deadHand
+            ? game.players.map(player => ({ playerId: player.id, amount: 0 }))
+            : calculateNetResults(settlements);
         const runningTotals = new Map<string, number>();
         const lastHand = game.hands.at(-1);
         const canEditHand = lastHand?.handNumber === hand.handNumber;
@@ -244,7 +248,8 @@ export function registerHandDetailRoute(
             renderPage(
                 `Hand ${hand.handNumber} - MJScore`,
                 `
-<h2>Hand ${hand.handNumber}</h2>
+<h2>Hand ${hand.handNumber}${hand.deadHand ? " — Dead Hand" : ""}</h2>
+${hand.deadHand ? '<p class="replay-notice">No scores or payments. Winds stay in place. East passes after the next completed hand, even if East wins.</p>' : game.hands[game.hands.indexOf(hand) - 1]?.deadHand ? '<p class="replay-notice">Replay completed: normal payments apply, and East passes even if East won.</p>' : ""}
 
 <div class="card">
     <div style="margin-bottom: 0.75rem;">
@@ -280,16 +285,16 @@ export function registerHandDetailRoute(
                 <strong>Mah-Jongg:</strong>
                 <span
                     style="
-                        background-color: ${getRackColorCss(
+                        background-color: ${winner ? getRackColorCss(
                             game.players.find(
                                 player => player.id === winner.playerId
                             )?.rackColor ?? game.players[0]!.rackColor
-                        )};
+                        ) : "transparent"};
                         padding: 0.15rem 0.5rem;
                         border-radius: 4px;
                     "
                 >
-                    ${escapeHtml(getPlayerName(game, winner.playerId))}
+                    ${winner ? escapeHtml(getPlayerName(game, winner.playerId)) : "None — Dead Hand"}
                 </span>
             </td>
         </tr>
@@ -364,15 +369,15 @@ export function registerHandDetailRoute(
     </thead>
 
     <tbody>
-        ${paymentRows}
+        ${paymentRows || '<tr><td colspan="6">No payments — Dead Hand.</td></tr>'}
     </tbody>
 </table>
 
 <div class="next-hand-action">
-    <a href="/">
+    <a href="${isGameOver(game) ? "/game-over" : "/"}">
         <button>
             <span style="color: #0b7a0b;">🀅</span>
-            Next Hand
+            ${isGameOver(game) ? "Game Over" : "Next Hand"}
         </button>
     </a>
 </div>
@@ -386,7 +391,8 @@ ${canEditHand
 </div>
 `
     : ""}
-`
+`,
+                isGameOver(game)
             )
         );
     });

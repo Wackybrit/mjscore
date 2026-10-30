@@ -149,6 +149,13 @@ export function registerEditLastHandRoute(
 
 <form method="POST" action="/edit-last-hand">
     <input type="hidden" name="gameToken" value="${guard.tokenFor(game)}">
+    <p><label>Hand outcome:
+        <select name="handOutcome" id="hand-outcome">
+            <option value="completed" ${lastHand.deadHand ? "" : "selected"}>Completed hand</option>
+            <option value="dead" ${lastHand.deadHand ? "selected" : ""}>Dead hand</option>
+        </select>
+    </label></p>
+    <p>Dead hands record zero scores and no winner. Corrections recalculate totals and winds.</p>
     <h3>Hand Scores</h3>
 
     <table>
@@ -187,6 +194,18 @@ export function registerEditLastHandRoute(
         </a>
     </div>
 </form>
+<script>
+    const outcome = document.getElementById("hand-outcome");
+    function updateOutcome() {
+        const dead = outcome.value === "dead";
+        document.querySelectorAll('[name^="score_"], [name="winnerId"]').forEach(input => {
+            input.disabled = dead;
+            input.required = !dead;
+        });
+    }
+    outcome.addEventListener("change", updateOutcome);
+    updateOutcome();
+</script>
 `
             )
         );
@@ -202,6 +221,7 @@ export function registerEditLastHandRoute(
             return;
         }
 
+        const deadHand = req.body.handOutcome === "dead";
         const winnerId = req.body.winnerId as string | undefined;
 
         const scores = game.players.map(player =>
@@ -210,7 +230,7 @@ export function registerEditLastHandRoute(
                 ? Number(req.body[`score_${player.id}`]) : NaN
         );
 
-        const validation = combineValidationResults(
+        const validation = deadHand ? { valid: true, errors: [] } : combineValidationResults(
             validateHandScores(scores),
             validateMahJonggWinner(winnerId, game.players.map(player => player.id)),
             validateMahJonggScore(
@@ -249,12 +269,15 @@ export function registerEditLastHandRoute(
 
         const correctedHand: HandResult = {
             ...lastHand,
+            deadHand,
             players: game.players.map((player, index) => ({
                 playerId: player.id,
-                handScore: scores[index]!,
-                mahJongg: player.id === winnerId
+                handScore: deadHand ? 0 : scores[index]!,
+                mahJongg: !deadHand && player.id === winnerId
             }))
         };
+
+        if (!deadHand) delete correctedHand.deadHand;
 
         const previousHands = game.hands.slice(
             0,

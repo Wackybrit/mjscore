@@ -1,6 +1,7 @@
 export function renderPage(
     title: string,
-    body: string
+    body: string,
+    gameOver: boolean = false
 ): string {
     return `
 <!DOCTYPE html>
@@ -194,6 +195,11 @@ export function renderPage(
             );
         }
 
+        .game-actions { display: flex; gap: 1rem; flex-wrap: wrap; align-items: flex-start; }
+        .game-actions form { margin: 0; }
+        .game-actions button { min-height: 64px; }
+        .replay-notice { max-width: 850px; padding: .85rem 1rem; border-left: 4px solid #b38328; background: #fff4d3; }
+
         .next-hand-action {
             margin-top: 2rem;
             margin-left: 6rem;
@@ -243,7 +249,7 @@ export function renderPage(
 
         <nav>
             <a href="/">Current Game</a>
-            <a href="/score-hand">Score Hand</a>
+            ${gameOver ? '<a href="/game-over">Game Over</a>' : '<a href="/score-hand">Score Hand</a>'}
             <a href="/history">History</a>
             <a href="/edit-players">Players</a>
             <a href="/save-game">Save</a>

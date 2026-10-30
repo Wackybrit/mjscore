@@ -7,7 +7,7 @@ import { getPlayerWind } from "../../models/game-utils";
 import { HandResult } from "../../models/hand-result";
 import { getRackColorCss } from "../../models/rack-color";
 import { getWindNumber } from "../../models/wind";
-import { recordHand } from "../../services/game-service";
+import { isGameOver, isReplayHand, recordHand } from "../../services/game-service";
 import { buildHandSummaryReport } from "../../services/reporting-service";
 import {
     combineValidationResults,
@@ -26,6 +26,10 @@ export function registerScoreHandRoute(
     app.get("/score-hand", (_req, res) => {
         const game = getGame();
         res.set("Cache-Control", "no-store");
+        if (isGameOver(game)) {
+            res.redirect(303, "/game-over");
+            return;
+        }
         const eastPlayer = game.players[game.eastPlayerIndex];
 
         const scoreRows = game.players
@@ -79,6 +83,7 @@ export function registerScoreHandRoute(
                 "Score Hand - MJScore",
                 `
 <h2>Score Completed Hand</h2>
+${isReplayHand(game) ? '<p class="replay-notice"><strong>Replay hand:</strong> Payments are normal. East passes after this completed hand, even if East wins.</p>' : ""}
 
 <div class="card">
     <div style="margin-bottom: 0.75rem;">
@@ -156,6 +161,10 @@ export function registerScoreHandRoute(
 
     app.post("/score-hand", (req, res) => {
         const game = getGame();
+        if (isGameOver(game)) {
+            res.redirect(303, "/game-over");
+            return;
+        }
         if (!guard.accept(game, req.body?.gameToken, res)) return;
         const winnerId = req.body.winnerId as string | undefined;
 

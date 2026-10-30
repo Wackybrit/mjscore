@@ -9,14 +9,14 @@ export function buildHandSummaryReport(
     handResult: HandResult
 ): string {
     const summary = calculateSettlementSummary(handResult);
-    const winner = getMahJonggPlayer(handResult.players);
+    const winner = handResult.deadHand ? null : getMahJonggPlayer(handResult.players);
 
     const lines: string[] = [];
 
     lines.push(`Hand ${handResult.handNumber}`);
     lines.push(`Round Wind: ${handResult.roundWind}`);
     lines.push(`East Wind: ${getPlayerName(game, handResult.eastPlayerId)}`);
-    lines.push(`Mah-Jongg: ${getPlayerName(game, winner.playerId)}`);
+    lines.push(winner ? `Mah-Jongg: ${getPlayerName(game, winner.playerId)}` : "Mah-Jongg: None — Dead Hand");
     lines.push("");
 
     lines.push("Scores:");
@@ -51,7 +51,10 @@ export function buildHandSummaryReport(
 
     lines.push("Net Results:");
 
-    summary.netResults.forEach(result => {
+    const netResults = handResult.deadHand
+        ? game.players.map(player => ({ playerId: player.id, amount: 0 }))
+        : summary.netResults;
+    netResults.forEach(result => {
         const playerName = getPlayerName(game, result.playerId);
         const sign = result.amount > 0 ? "+" : "";
         const amountText = `${sign}${result.amount}`;
@@ -139,7 +142,7 @@ export function buildHandHistoryReport(
             return scoreText.padStart(10);
         });
 
-        lines.push(row.join(""));
+        lines.push(row.join("") + (hand.deadHand ? " (Dead Hand)" : ""));
     });
 
     return lines.join("\n");

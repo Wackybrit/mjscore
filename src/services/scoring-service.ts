@@ -7,6 +7,12 @@ import { SettlementSummary } from "../models/settlement-summary";
 export function calculateSettlements(
     handResult: HandResult
 ): Settlement[] {
+    if (handResult.deadHand) {
+        if (handResult.players.some(player => player.handScore !== 0 || player.mahJongg !== false)) {
+            throw new Error("A dead hand must have zero scores and no Mah-Jongg winner.");
+        }
+        return [];
+    }
     const winner = getMahJonggPlayer(handResult.players);
     const settlements: Settlement[] = [];
 

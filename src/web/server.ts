@@ -1,3 +1,4 @@
+import { registerGameOverRoute } from "./routes/game-over-route";
 import express from "express";
 import { PersistenceError } from "../services/persistence-service";
 import { renderPage } from "./page-template";
@@ -40,7 +41,8 @@ export function createApp(): express.Express {
         saveGame(updatedGame);
         game = updatedGame;
     };
-    registerHomeRoute(app, getGame);
+    registerHomeRoute(app, getGame, setGame);
+    registerGameOverRoute(app, getGame);
     registerScoreHandRoute(app, getGame, setGame);
     registerHistoryRoute(app, getGame);
     registerSaveLoadRoute(app, getGame, setGame);

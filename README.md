@@ -194,3 +194,37 @@ winds and the return to East, with repeated East wins delaying round changes. Th
 also check accumulated totals, preservation of earlier game snapshots, rebuilding
 history, and corrections that change scores, change the winner, or undo a round
 transition. Run them with the rest of the suite using `npm test`.
+
+## Ending a full game
+
+A full game consists of two East/South/West/North cycles. The game ends when East
+advances for the fourth time in the second North round. East wins retain the turn
+and can extend the game beyond 32 hands.
+
+After the final hand, Game Over replaces Next Hand and opens a final scoreboard
+with a winner banner. Players tied for the highest cumulative score are joint
+winners. Completed games remain available for history, named saving, and loading;
+additional hands cannot be scored. Correcting the latest hand recalculates the
+results and reopens play if East should have retained the final turn.
+
+Completion is derived from the existing round counter, so no new save-file fields
+are needed. The final screen is designed to fit a landscape iPad and TV display.
+
+## Dead hands and replays
+
+Use Dead Hand beside MAH-JONGG on Current Game Status when no player wins before
+the eligible tiles run out. History records a labelled dead hand with zero scores,
+no winner and no payments. Totals, seat winds and round wind stay unchanged.
+Repeated dead hands keep the same winds; they never count toward round completion.
+
+The next properly completed hand is a replay: score it normally, including East's
+doubled payments, but pass East even if East wins. Subsequent hands return to normal
+rules. Replay notices appear on the current-game and score-entry screens, and
+history labels the completed replay. The replay status is derived from the last
+history entry and survives saving, loading and restarting.
+
+Edit Last Hand offers Completed hand and Dead hand outcomes. Changing the outcome
+rebuilds totals and winds, including replay behavior and whether the game is over.
+Hand numbers identify history entries, so dead hands have their own numbered entry
+without advancing winds. Older saves without a dead-hand marker remain compatible.
+Dead hands cannot be declared after the game has ended.

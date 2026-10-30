@@ -13,6 +13,7 @@ export function registerHistoryRoute(
 ): void {
     app.get("/history", (_req, res) => {
         const game = getGame();
+        res.set("Cache-Control", "no-store");
 
         const runningTotals = new Map<string, number>();
 
@@ -74,6 +75,7 @@ export function registerHistoryRoute(
         <a href="/hand/${hand.handNumber}">
             ${index + 1}
         </a>
+        ${hand.deadHand ? '<br><strong>Dead Hand</strong>' : game.hands[index - 1]?.deadHand ? '<br>Replay' : ""}
     </td>
     <td>${hand.roundWind}</td>
     ${(() => {

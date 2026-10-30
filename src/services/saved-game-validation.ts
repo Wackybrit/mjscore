@@ -44,6 +44,7 @@ export function validateSavedGame(value: unknown): asserts value is Game {
         requireValid(hand.handNumber === index + 1 && wind(hand.roundWind));
         requireValid(typeof hand.eastPlayerId === "string" && ids.has(hand.eastPlayerId));
         requireValid(hand.notes === undefined || typeof hand.notes === "string");
+        requireValid(hand.deadHand === undefined || typeof hand.deadHand === "boolean");
         requireValid(Array.isArray(hand.players) && hand.players.length === 4);
         const handIds = new Set<string>();
         let winners = 0;
@@ -53,9 +54,10 @@ export function validateSavedGame(value: unknown): asserts value is Game {
             handIds.add(result.playerId);
             requireValid(integer(result.handScore, 0) && result.handScore % 2 === 0);
             requireValid(typeof result.mahJongg === "boolean");
+            if (hand.deadHand) requireValid(result.handScore === 0 && result.mahJongg === false);
             if (result.mahJongg) winners++;
         });
-        requireValid(winners === 1);
+        requireValid(winners === (hand.deadHand ? 0 : 1));
     });
 
     const game = value as unknown as Game;

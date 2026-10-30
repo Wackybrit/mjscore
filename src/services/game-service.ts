@@ -35,10 +35,34 @@ export function createGame(
     };
 }
 
+// roundNumber points to the next turn. Advancing past the second North round
+// (round 8) ends the game; no extra persisted flag or save-file migration is needed.
+export function isGameOver(game: Game): boolean {
+    return game.roundNumber > 8;
+}
+
+// Repeated dead hands leave this pending until a properly completed hand.
+// Deriving it from history also preserves it through saves and hand corrections.
+export function isReplayHand(game: Game): boolean {
+    return game.hands.at(-1)?.deadHand === true;
+}
+
+export function recordDeadHand(game: Game): Game {
+    return recordHand(game, {
+        handNumber: game.handNumber,
+        roundWind: game.roundWind,
+        eastPlayerId: game.players[game.eastPlayerIndex]!.id,
+        deadHand: true,
+        players: game.players.map(player => ({ playerId: player.id, handScore: 0, mahJongg: false }))
+    });
+}
+
 export function advanceAfterHand(
     game: Game,
-    winnerId: string
+    winnerId: string,
+    forceEastAdvance: boolean = false
 ): Game {
+    if (isGameOver(game)) throw new Error("The game is over. No further hands can be recorded.");
     const eastPlayer = game.players[game.eastPlayerIndex];
 
     if (!eastPlayer) {
@@ -52,7 +76,7 @@ export function advanceAfterHand(
     let nextRoundNumber = game.roundNumber;
     let nextEastAdvancementsThisRound = game.eastAdvancementsThisRound;
 
-    if (!eastWon) {
+    if (!eastWon || forceEastAdvance) {
         nextEastPlayerIndex = getNextEastPlayerIndex(game.eastPlayerIndex);
 
         nextEastAdvancementsThisRound =
@@ -79,6 +103,7 @@ export function recordHand(
     game: Game,
     handResult: HandResult
 ): Game {
+    if (isGameOver(game)) throw new Error("The game is over. No further hands can be recorded.");
     const settlements = calculateSettlements(handResult);
     const netResults = calculateNetResults(settlements);
 
@@ -96,6 +121,10 @@ export function recordHand(
         netResults
     );
 
+    if (handResult.deadHand) {
+        return { ...updatedGame, handNumber: game.handNumber + 1 };
+    }
+
     const winner = handResult.players.find(
         player => player.mahJongg
     );
@@ -106,7 +135,8 @@ export function recordHand(
 
     return advanceAfterHand(
         updatedGame,
-        winner.playerId
+        winner.playerId,
+        isReplayHand(game)
     );
 }
 
