@@ -1,3 +1,4 @@
+import { escapeHtml } from "../html-utils";
 import { Express } from "express";
 
 import { getPlayerWind } from "../../models/game-utils";
@@ -42,7 +43,7 @@ export function registerHomeRoute(
                 return `
 <tr>
     <td style="${playerNameStyle}">
-        ${player.name}
+        ${escapeHtml(player.name)}
     </td>
     <td>${wind} (${getWindNumber(wind)})</td>
     <td>${scoreText}</td>
@@ -81,7 +82,7 @@ export function registerHomeRoute(
                         border-radius: 4px;
                     "
                 >
-                    ${eastPlayer?.name ?? "Unknown"}
+                    ${escapeHtml(eastPlayer?.name ?? "Unknown")}
                 </span>
             </td>
         </tr>

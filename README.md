@@ -127,3 +127,70 @@ in data backups. This is intended for cleanup of the save list, not freeing stor
 
 `npm test` compiles and tests confirmation, file selection, persistence and restoration
 using temporary data. Docker builds run these checks before publishing.
+
+## Save integrity and recovery
+
+Current-game and named saves are validated, written to a unique temporary file in
+the destination directory, flushed, and then renamed over the destination. A
+failed write leaves the previous save intact. The visible active game updates only
+after its save succeeds. This reduces incomplete-save risks; keep regular backups
+for hardware failures and power loss. An interrupted process can leave a hidden
+`.mjscore-*.tmp` file, which is ignored by the saved-game list.
+
+Loading validates player and hand structure and checks totals, East position and
+round progression against the recorded hands. Invalid named saves show an error
+without changing the active game or modifying the saved file. Existing compatible
+JSON saves need no migration. Saving under an existing name requires confirmation before replacing that
+named save.
+
+If `current-game.json` is damaged, incompatible or unreadable at startup, MJScore
+serves a recovery page and refuses game changes, preserving that file. Stop the
+container, back up the data folder including the damaged file, restore a known good
+`current-game.json` (or copy a known good named save to that filename), and restart.
+For an access error, correct the data folder permissions while the app is stopped.
+A missing current-game file still starts the usual default game.
+
+The persistence tests use temporary directories and simulate partial writes, flush
+and rename failures, invalid JSON/data, failed loads and startup recovery. They do
+not write to development or Porky game data.
+
+## Duplicate and outdated hand forms
+
+Scoring and latest-hand correction forms belong to the game state shown when the
+page was opened. A successful game change invalidates earlier forms, including
+forms in another browser or tab. Double submissions, old forms after loading or
+starting a game, and forms opened before a restart show a refresh message without
+changing the game. Check Current game before opening a fresh form and re-entering
+a hand. Validation and storage failures leave the form valid for a retry while the
+game stays unchanged. Forms do not expire just because a playing session is long.
+
+## Confirming replacements
+
+Saving with a new name works immediately. If the name matches an existing save
+(including differences in case, spaces or punctuation removed from filenames),
+MJScore shows the actual saved name, existing players and completed-hand count,
+and the current game that would replace it. A damaged existing save can also be
+reviewed and replaced; its details are marked unavailable.
+
+New Game and Load show the current game and its proposed replacement before
+changing the active game or its automatic save. Save the current game under a name
+first if you want to retain it. These actions never change named saved copies.
+
+Choose the explicit replacement button to proceed, or Cancel to keep the existing
+game. Confirmation pages do not change files. Confirmations are single-use, expire
+after 15 minutes, and must be reviewed again if the current game or selected saved
+file changes. They also expire on restart. Failed storage writes keep the previous
+files and allow retrying the confirmation while the reviewed state is unchanged.
+
+## Scoring and game-progression tests
+
+Dedicated worked examples check exact payments and net balances when East wins or
+loses, tied losing scores, and a winner whose raw score is below another player's.
+They cover every combination of winner and East seat and verify that balances sum
+to zero. Invalid winner counts are rejected without changing the game.
+
+Progression tests cover all starting East positions, each seat wind, all four round
+winds and the return to East, with repeated East wins delaying round changes. They
+also check accumulated totals, preservation of earlier game snapshots, rebuilding
+history, and corrections that change scores, change the winner, or undo a round
+transition. Run them with the rest of the suite using `npm test`.

@@ -12,8 +12,8 @@ export function validateHandScores(
     const errors: string[] = [];
 
     scores.forEach((score, index) => {
-        if (!Number.isFinite(score)) {
-            errors.push(`Player ${index + 1} score must be a number.`);
+        if (!Number.isSafeInteger(score)) {
+            errors.push(`Player ${index + 1} score must be a safe whole number.`);
         }
 
         if (score < 0) {
@@ -70,6 +70,10 @@ export function validateStartingWinds(
 
     const uniqueWinds = new Set(winds);
 
+    if (winds.length !== 4 || winds.some(wind => !Object.values(Wind).includes(wind))) {
+        errors.push("Select a valid starting wind for each player.");
+    }
+
     if (uniqueWinds.size !== 4) {
         errors.push("Each player must have a unique starting wind.");
     }
@@ -81,12 +85,13 @@ export function validateStartingWinds(
 }
 
 export function validateMahJonggWinner(
-    winnerId: string | undefined
+    winnerId: string | undefined,
+    playerIds: string[]
 ): ValidationResult {
     const errors: string[] = [];
 
-    if (!winnerId) {
-        errors.push("A Mah-Jongg winner must be selected.");
+    if (typeof winnerId !== "string" || !playerIds.includes(winnerId)) {
+        errors.push("Select a Mah-Jongg winner from the current players.");
     }
 
     return {
@@ -112,6 +117,10 @@ export function validateRackColors(
     const errors: string[] = [];
 
     const uniqueColors = new Set(rackColors);
+
+    if (rackColors.length !== 4 || rackColors.some(color => !Object.values(RackColor).includes(color))) {
+        errors.push("Select a valid rack color for each player.");
+    }
 
     if (uniqueColors.size !== 4) {
         errors.push("Each player must have a unique rack color.");

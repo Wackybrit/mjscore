@@ -5,5 +5,5 @@
 [X] Create New Game page
 [X] Create Hand Entry page
 [ ] Add British Mahjong scoring calculator
-[ ] Dockerize application
-[ ] Deploy to Unraid
+[X] Dockerize application
+[X] Deploy to Unraid

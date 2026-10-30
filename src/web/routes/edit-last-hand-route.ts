@@ -1,3 +1,5 @@
+import { createGameFormGuard } from "../game-form-guard";
+import { escapeHtml } from "../html-utils";
 import { Express } from "express";
 
 import { getPlayerWind } from "../../models/game-utils";
@@ -8,7 +10,6 @@ import { getWindNumber } from "../../models/wind";
 import {
     rebuildGameFromHands
 } from "../../services/game-service";
-import { saveGame } from "../../services/persistence-service";
 import {
     combineValidationResults,
     validateHandScores,
@@ -22,8 +23,10 @@ export function registerEditLastHandRoute(
     getGame: () => Game,
     setGame: (game: Game) => void
 ): void {
+    const guard = createGameFormGuard("/edit-last-hand", "Open fresh correction form");
     app.get("/edit-last-hand", (_req, res) => {
         const game = getGame();
+        res.set("Cache-Control", "no-store");
         const lastHand = game.hands.at(-1);
 
         if (!lastHand) {
@@ -57,13 +60,13 @@ export function registerEditLastHandRoute(
 
                 const wind = getPlayerWind(
                     player.seatPosition,
-                    game.eastPlayerIndex
+                    game.players.findIndex(p => p.id === lastHand.eastPlayerId)
                 );
 
                 return `
 <tr>
     <td style="background-color: ${getRackColorCss(player.rackColor)};">
-        ${player.name}
+        ${escapeHtml(player.name)}
     </td>
     <td>${wind} (${getWindNumber(wind)})</td>
     <td>
@@ -91,7 +94,7 @@ export function registerEditLastHandRoute(
                 return `
 <tr>
     <td style="background-color: ${getRackColorCss(player.rackColor)};">
-        ${player.name}
+        ${escapeHtml(player.name)}
     </td>
     <td>
         <input
@@ -137,7 +140,7 @@ export function registerEditLastHandRoute(
                         border-radius: 4px;
                     "
                 >
-                    ${eastPlayer?.name ?? "Unknown"}
+                    ${escapeHtml(eastPlayer?.name ?? "Unknown")}
                 </span>
             </td>
         </tr>
@@ -145,6 +148,7 @@ export function registerEditLastHandRoute(
 </div>
 
 <form method="POST" action="/edit-last-hand">
+    <input type="hidden" name="gameToken" value="${guard.tokenFor(game)}">
     <h3>Hand Scores</h3>
 
     <table>
@@ -190,6 +194,7 @@ export function registerEditLastHandRoute(
 
     app.post("/edit-last-hand", (req, res) => {
         const game = getGame();
+        if (!guard.accept(game, req.body?.gameToken, res)) return;
         const lastHand = game.hands.at(-1);
 
         if (!lastHand) {
@@ -200,12 +205,14 @@ export function registerEditLastHandRoute(
         const winnerId = req.body.winnerId as string | undefined;
 
         const scores = game.players.map(player =>
-            Number(req.body[`score_${player.id}`])
+            typeof req.body[`score_${player.id}`] === "string" &&
+            req.body[`score_${player.id}`].trim() !== ""
+                ? Number(req.body[`score_${player.id}`]) : NaN
         );
 
         const validation = combineValidationResults(
             validateHandScores(scores),
-            validateMahJonggWinner(winnerId),
+            validateMahJonggWinner(winnerId, game.players.map(player => player.id)),
             validateMahJonggScore(
                 scores,
                 winnerId,
@@ -266,7 +273,6 @@ export function registerEditLastHandRoute(
         );
 
         setGame(rebuiltGame);
-        saveGame(rebuiltGame);
 
         res.redirect(`/hand/${correctedHand.handNumber}`);
     });

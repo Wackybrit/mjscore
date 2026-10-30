@@ -3,9 +3,7 @@ import { randomBytes } from "node:crypto";
 import { inspectSavedGame, listRemovedGames, removeSavedGame, restoreSavedGame } from "../../services/saved-game-cleanup";
 import { renderPage } from "../page-template";
 
-export function escapeHtml(value: string): string {
-    return value.replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]!));
-}
+import { escapeHtml } from "../html-utils";
 
 type Confirmation = { action: "remove" | "restore"; target: string; name: string; fingerprint: string; expires: number };
 

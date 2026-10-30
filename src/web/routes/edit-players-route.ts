@@ -1,8 +1,8 @@
+import { escapeHtml } from "../html-utils";
 import { Express } from "express";
 
 import { Game } from "../../models/game";
 import { getRackColorCss } from "../../models/rack-color";
-import { saveGame } from "../../services/persistence-service";
 import { validatePlayerNames } from "../../services/validation-service";
 import { renderPage } from "../page-template";
 
@@ -20,12 +20,12 @@ export function registerEditPlayersRoute(
     <td style="background-color: ${getRackColorCss(player.rackColor)};">
         ${player.rackColor}
     </td>
-    <td>${player.name}</td>
+    <td>${escapeHtml(player.name)}</td>
     <td>
         <input
             type="text"
             name="playerName_${index}"
-            value="${player.name}"
+            value="${escapeHtml(player.name)}"
             required
             pattern=".*\\S.*"
             title="Player name cannot be blank."
@@ -71,7 +71,8 @@ export function registerEditPlayersRoute(
         const game = getGame();
 
         const newNames = game.players.map((_, index) =>
-            String(req.body[`playerName_${index}`]).trim()
+            typeof req.body[`playerName_${index}`] === "string"
+                ? req.body[`playerName_${index}`].trim() : ""
         );
 
         const validation = validatePlayerNames(newNames);
@@ -110,7 +111,6 @@ export function registerEditPlayersRoute(
         };
 
         setGame(updatedGame);
-        saveGame(updatedGame);
 
         res.redirect("/");
     });

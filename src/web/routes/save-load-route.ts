@@ -1,13 +1,15 @@
+import { registerGameActionConfirmation } from "../game-action-confirmation";
 import { Express } from "express";
 
 import { Game } from "../../models/game";
 import {
     listSavedGames,
-    loadSavedGame,
-    saveGame,
+    loadSavedGameSnapshot,
+    inspectNamedSave,
     saveGameAs
 } from "../../services/persistence-service";
-import { escapeHtml, registerSavedGameCleanupRoutes } from "./saved-game-cleanup-route";
+import { registerSavedGameCleanupRoutes } from "./saved-game-cleanup-route";
+import { escapeHtml } from "../html-utils";
 import { renderPage } from "../page-template";
 
 export function registerSaveLoadRoute(
@@ -16,6 +18,7 @@ export function registerSaveLoadRoute(
     setGame: (game: Game) => void
 ): void {
     registerSavedGameCleanupRoutes(app);
+    const review = registerGameActionConfirmation(app, "/confirm-saved-game", getGame, setGame);
     app.get("/save-game", (_req, res) => {
         res.send(
             renderPage(
@@ -47,10 +50,13 @@ export function registerSaveLoadRoute(
     app.post("/save-game", (req, res) => {
         const saveName = req.body.saveName as string;
 
-        saveGameAs(
-            getGame(),
-            saveName
-        );
+        const game = getGame();
+        const existing = inspectNamedSave(saveName);
+        if (existing) {
+            review(res, { kind: "save", replacement: game, save: existing });
+            return;
+        }
+        saveGameAs(game, saveName);
 
         res.send(
             renderPage(
@@ -115,11 +121,7 @@ ${savedGames.length === 0
     app.post("/load-game", (req, res) => {
         const saveName = req.body.saveName as string;
 
-        const loadedGame = loadSavedGame(saveName);
-
-        setGame(loadedGame);
-        saveGame(loadedGame);
-
-        res.redirect("/");
+        const save = loadSavedGameSnapshot(saveName);
+        review(res, { kind: "load", replacement: save.game, save });
     });
 }

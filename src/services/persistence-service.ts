@@ -1,123 +1,144 @@
 import fs from "node:fs";
 import path from "node:path";
-
+import { createHash, randomUUID } from "node:crypto";
 import { Game } from "../models/game";
+import { validateSavedGame } from "./saved-game-validation";
 
-const DATA_DIRECTORY = path.join(
-    process.cwd(),
-    "data"
-);
+const DATA_DIRECTORY = path.join(process.cwd(), "data");
+const SAVE_FILE_PATH = path.join(DATA_DIRECTORY, "current-game.json");
+const SAVED_GAMES_DIRECTORY = path.join(DATA_DIRECTORY, "saved-games");
 
-const SAVE_FILE_PATH = path.join(
-    DATA_DIRECTORY,
-    "current-game.json"
-);
-
-const SAVED_GAMES_DIRECTORY = path.join(
-    DATA_DIRECTORY,
-    "saved-games"
-);
-
-function ensureDirectoryExists(
-    directoryPath: string
-): void {
-    if (!fs.existsSync(directoryPath)) {
-        fs.mkdirSync(directoryPath, {
-            recursive: true
-        });
+export class PersistenceError extends Error {
+    constructor(message: string, public readonly status: number = 503) {
+        super(message);
+        this.name = "PersistenceError";
     }
 }
 
-function sanitizeFileName(
-    fileName: string
-): string {
-    return fileName
-        .trim()
-        .replace(/[^a-z0-9-_ ]/gi, "")
-        .replace(/\s+/g, "-")
-        .toLowerCase();
+function sanitizeFileName(fileName: string): string {
+    if (typeof fileName !== "string") throw new PersistenceError("Enter a save name.", 400);
+    const name = fileName.trim().replace(/[^a-z0-9-_ ]/gi, "")
+        .replace(/\s+/g, "-").toLowerCase();
+    if (!name) throw new PersistenceError("Save name cannot be empty.", 400);
+    return name;
 }
 
-export function saveGame(
-    game: Game
-): void {
-    ensureDirectoryExists(DATA_DIRECTORY);
+function writeGame(filePath: string, game: Game): void {
+    // Serialize and validate before touching an existing save.
+    let contents: string;
+    try {
+        validateSavedGame(game);
+        contents = JSON.stringify(game, null, 4);
+    } catch {
+        throw new PersistenceError("This game could not be saved because its data is invalid. The previous save was kept.", 400);
+    }
+    const temporary = path.join(path.dirname(filePath), `.mjscore-${randomUUID()}.tmp`);
+    let descriptor: number | undefined;
+    let created = false;
+    try {
+        fs.mkdirSync(path.dirname(filePath), { recursive: true });
+        const mode = fs.existsSync(filePath) ? fs.statSync(filePath).mode & 0o777 : 0o666;
+        descriptor = fs.openSync(temporary, "wx", mode);
+        created = true;
+        fs.writeFileSync(descriptor, contents, "utf8");
+        fs.fsyncSync(descriptor);
+        fs.closeSync(descriptor);
+        descriptor = undefined;
+        // Same-directory rename replaces the old save only after the new file is complete.
+        fs.renameSync(temporary, filePath);
+    } catch {
+        throw new PersistenceError("The game could not be saved. The previous save was kept. Check available storage and data folder permissions, then try again.");
+    } finally {
+        if (descriptor !== undefined) {
+            try { fs.closeSync(descriptor); } catch { /* Preserve the original error. */ }
+        }
+        if (created) {
+            try { fs.unlinkSync(temporary); } catch { /* Renamed files no longer exist here. */ }
+        }
+    }
+}
 
-    fs.writeFileSync(
-        SAVE_FILE_PATH,
-        JSON.stringify(game, null, 4),
-        "utf-8"
-    );
+function readGame(filePath: string): Game {
+    let contents: string;
+    try {
+        contents = fs.readFileSync(filePath, "utf8");
+    } catch {
+        throw new PersistenceError("The saved game could not be read. Check that it still exists and the data folder is accessible. Your current game has not changed.");
+    }
+    try {
+        const game: unknown = JSON.parse(contents);
+        validateSavedGame(game);
+        return game;
+    } catch {
+        throw new PersistenceError("This saved game is damaged or incompatible and could not be loaded. Your current game has not changed, and the saved file was kept. Choose another save or restore a backup.", 400);
+    }
+}
+
+export function saveGame(game: Game): void {
+    writeGame(SAVE_FILE_PATH, game);
 }
 
 export function loadGame(): Game | null {
-    if (!fs.existsSync(SAVE_FILE_PATH)) {
-        return null;
+    // Only a genuinely missing file means a new game; unreadable data must not be replaced.
+    try {
+        fs.lstatSync(SAVE_FILE_PATH);
+    } catch (error) {
+        if ((error as NodeJS.ErrnoException).code === "ENOENT") return null;
+        throw new PersistenceError("The current game could not be read. Check the data folder permissions.");
     }
-
-    const fileContents = fs.readFileSync(
-        SAVE_FILE_PATH,
-        "utf-8"
-    );
-
-    return JSON.parse(fileContents) as Game;
+    return readGame(SAVE_FILE_PATH);
 }
 
-export function saveGameAs(
-    game: Game,
-    saveName: string
-): string {
-    ensureDirectoryExists(SAVED_GAMES_DIRECTORY);
-
-    const safeFileName = sanitizeFileName(saveName);
-
-    if (!safeFileName) {
-        throw new Error("Save name cannot be empty.");
-    }
-
-    const filePath = path.join(
-        SAVED_GAMES_DIRECTORY,
-        `${safeFileName}.json`
-    );
-
-    fs.writeFileSync(
-        filePath,
-        JSON.stringify(game, null, 4),
-        "utf-8"
-    );
-
+export function saveGameAs(game: Game, saveName: string): string {
+    const filePath = path.join(SAVED_GAMES_DIRECTORY, `${sanitizeFileName(saveName)}.json`);
+    writeGame(filePath, game);
     return filePath;
 }
 
-export function loadSavedGame(
-    saveName: string
-): Game {
-    const safeFileName = sanitizeFileName(saveName);
+export interface NamedSaveSnapshot {
+    name: string;
+    fingerprint: string;
+    game: Game | null;
+}
 
-    const filePath = path.join(
-        SAVED_GAMES_DIRECTORY,
-        `${safeFileName}.json`
-    );
-
-    if (!fs.existsSync(filePath)) {
-        throw new Error(`Saved game not found: ${saveName}`);
+// Read once so the reviewed game and its fingerprint describe the same bytes.
+// A damaged save can still be reviewed before replacing it.
+export function inspectNamedSave(saveName: string): NamedSaveSnapshot | null {
+    const name = sanitizeFileName(saveName);
+    let bytes: Buffer;
+    try {
+        bytes = fs.readFileSync(path.join(SAVED_GAMES_DIRECTORY, `${name}.json`));
+    } catch (error) {
+        if ((error as NodeJS.ErrnoException).code === "ENOENT") return null;
+        throw new PersistenceError("The saved game could not be read. Check the data folder permissions. No changes were made.");
     }
+    let game: Game | null = null;
+    try {
+        const value: unknown = JSON.parse(bytes.toString("utf8"));
+        validateSavedGame(value);
+        game = value;
+    } catch { /* Keep the fingerprint available for reviewing a damaged save. */ }
+    return { name, fingerprint: createHash("sha256").update(bytes).digest("hex"), game };
+}
 
-    const fileContents = fs.readFileSync(
-        filePath,
-        "utf-8"
-    );
+export function loadSavedGameSnapshot(saveName: string): NamedSaveSnapshot & { game: Game } {
+    const save = inspectNamedSave(saveName);
+    if (!save) throw new PersistenceError("The saved game could not be read. Check that it still exists. Your current game has not changed.");
+    if (!save.game) throw new PersistenceError("This saved game is damaged or incompatible and could not be loaded. Your current game has not changed, and the saved file was kept. Choose another save or restore a backup.", 400);
+    return { ...save, game: save.game };
+}
 
-    return JSON.parse(fileContents) as Game;
+export function loadSavedGame(saveName: string): Game {
+    return loadSavedGameSnapshot(saveName).game;
 }
 
 export function listSavedGames(): string[] {
-    if (!fs.existsSync(SAVED_GAMES_DIRECTORY)) {
-        return [];
+    try {
+        return fs.readdirSync(SAVED_GAMES_DIRECTORY)
+            .filter(fileName => fileName.endsWith(".json"))
+            .map(fileName => fileName.slice(0, -5));
+    } catch (error) {
+        if ((error as NodeJS.ErrnoException).code === "ENOENT") return [];
+        throw new PersistenceError("Saved games could not be listed. Check the data folder permissions.");
     }
-
-    return fs
-        .readdirSync(SAVED_GAMES_DIRECTORY)
-        .filter(fileName => fileName.endsWith(".json"))
-        .map(fileName => fileName.replace(".json", ""));
 }

@@ -1,3 +1,4 @@
+import { escapeHtml } from "../html-utils";
 import { Express } from "express";
 
 import { getPlayerName } from "../../models/game-utils";
@@ -124,7 +125,7 @@ export function registerHandDetailRoute(
                 return `
         <tr>
             <td style="${playerStyle}">
-                ${player.name}
+                ${escapeHtml(player.name)}
             </td>
             <td${scoreStyle}>${result.handScore}</td>
         </tr>
@@ -150,7 +151,7 @@ export function registerHandDetailRoute(
                     ${getRackColorCss(player.rackColor)};
                 "
             >
-                ${player.name}
+                ${escapeHtml(player.name)}
             </td>
             <td>${sign}${total}</td>
         </tr>
@@ -198,11 +199,11 @@ export function registerHandDetailRoute(
                 return `
 <tr>
     <td style="background-color: ${getRackColorCss(fromPlayer.rackColor)};">
-        ${fromPlayer.name}
+        ${escapeHtml(fromPlayer.name)}
     </td>
     <td>pays</td>
     <td style="background-color: ${getRackColorCss(toPlayer.rackColor)};">
-        ${toPlayer.name}
+        ${escapeHtml(toPlayer.name)}
     </td>
     <td>${settlement.amount}</td>
     <td>${renderCoins(settlement.amount)}</td>
@@ -231,7 +232,7 @@ export function registerHandDetailRoute(
                 return `
 <tr>
     <td style="background-color: ${getRackColorCss(player.rackColor)};">
-        ${player.name}
+        ${escapeHtml(player.name)}
     </td>
     <td>${sign}${result.amount}</td>
 </tr>
@@ -271,7 +272,7 @@ export function registerHandDetailRoute(
                         border-radius: 4px;
                     "
                 >
-                    ${eastPlayerName}
+                    ${escapeHtml(eastPlayerName)}
                 </span>
             </td>
 
@@ -288,7 +289,7 @@ export function registerHandDetailRoute(
                         border-radius: 4px;
                     "
                 >
-                    ${getPlayerName(game, winner.playerId)}
+                    ${escapeHtml(getPlayerName(game, winner.playerId))}
                 </span>
             </td>
         </tr>

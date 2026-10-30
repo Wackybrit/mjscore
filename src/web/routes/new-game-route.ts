@@ -1,10 +1,10 @@
+import { registerGameActionConfirmation } from "../game-action-confirmation";
 import { Express } from "express";
 
 import { Game } from "../../models/game";
 import { RackColor } from "../../models/rack-color";
 import { Wind, WIND_ORDER } from "../../models/wind";
 import { createGame } from "../../services/game-service";
-import { saveGame } from "../../services/persistence-service";
 import {
     combineValidationResults,
     validatePlayerNames,
@@ -21,8 +21,10 @@ type NewGamePlayerEntry = {
 
 export function registerNewGameRoute(
     app: Express,
+    getGame: () => Game,
     setGame: (game: Game) => void
 ): void {
+    const review = registerGameActionConfirmation(app, "/confirm-new-game", getGame, setGame);
     app.get("/new-game", (_req, res) => {
         res.send(
             renderPage(
@@ -137,7 +139,8 @@ export function registerNewGameRoute(
 
     app.post("/new-game", (req, res) => {
         const entries: NewGamePlayerEntry[] = [0, 1, 2, 3].map(index => ({
-            name: String(req.body[`playerName_${index}`]).trim(),
+            name: typeof req.body[`playerName_${index}`] === "string"
+                ? req.body[`playerName_${index}`].trim() : "",
             startingWind: req.body[`startingWind_${index}`] as Wind,
             rackColor: req.body[`rackColor_${index}`] as RackColor
         }));
@@ -193,9 +196,6 @@ export function registerNewGameRoute(
             sortedEntries.map(entry => entry.rackColor)
         );
 
-        setGame(newGame);
-        saveGame(newGame);
-
-        res.redirect("/");
+        review(res, { kind: "new", replacement: newGame });
     });
 }

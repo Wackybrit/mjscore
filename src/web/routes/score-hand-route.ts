@@ -1,3 +1,5 @@
+import { createGameFormGuard } from "../game-form-guard";
+import { escapeHtml } from "../html-utils";
 import { Express } from "express";
 
 import { Game } from "../../models/game";
@@ -20,8 +22,10 @@ export function registerScoreHandRoute(
     getGame: () => Game,
     setGame: (game: Game) => void
 ): void {
+    const guard = createGameFormGuard("/score-hand", "Open fresh score form");
     app.get("/score-hand", (_req, res) => {
         const game = getGame();
+        res.set("Cache-Control", "no-store");
         const eastPlayer = game.players[game.eastPlayerIndex];
 
         const scoreRows = game.players
@@ -34,7 +38,7 @@ export function registerScoreHandRoute(
                 return `
 <tr>
     <td style="background-color: ${getRackColorCss(player.rackColor)};">
-        ${player.name}
+        ${escapeHtml(player.name)}
     </td>
     <td>${wind} (${getWindNumber(wind)})</td>
     <td>
@@ -56,7 +60,7 @@ export function registerScoreHandRoute(
             .map(player => `
 <tr>
     <td style="background-color: ${getRackColorCss(player.rackColor)};">
-        ${player.name}
+        ${escapeHtml(player.name)}
     </td>
     <td>
         <input 
@@ -100,7 +104,7 @@ export function registerScoreHandRoute(
                         border-radius: 4px;
                     "
                 >
-                    ${eastPlayer?.name ?? "Unknown"}
+                    ${escapeHtml(eastPlayer?.name ?? "Unknown")}
                 </span>
             </td>
         </tr>
@@ -108,6 +112,7 @@ export function registerScoreHandRoute(
 </div>
 
 <form method="POST" action="/score-hand">
+    <input type="hidden" name="gameToken" value="${guard.tokenFor(game)}">
     <h3>Scores</h3>
 
     <table>
@@ -151,15 +156,18 @@ export function registerScoreHandRoute(
 
     app.post("/score-hand", (req, res) => {
         const game = getGame();
+        if (!guard.accept(game, req.body?.gameToken, res)) return;
         const winnerId = req.body.winnerId as string | undefined;
 
         const scores = game.players.map(player =>
-            Number(req.body[`score_${player.id}`])
+            typeof req.body[`score_${player.id}`] === "string" &&
+            req.body[`score_${player.id}`].trim() !== ""
+                ? Number(req.body[`score_${player.id}`]) : NaN
         );
 
         const validation = combineValidationResults(
             validateHandScores(scores),
-            validateMahJonggWinner(winnerId),
+            validateMahJonggWinner(winnerId, game.players.map(player => player.id)),
             validateMahJonggScore(
                 scores,
                 winnerId,

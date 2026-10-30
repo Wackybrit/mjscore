@@ -1,3 +1,4 @@
+import { escapeHtml } from "../html-utils";
 import { Express } from "express";
 
 import { getPlayerName } from "../../models/game-utils";
@@ -86,7 +87,7 @@ export function registerHistoryRoute(
 
         return `
     <td style="background-color: ${getRackColorCss(eastPlayer.rackColor)};">
-        ${eastPlayer.name}
+        ${escapeHtml(eastPlayer.name)}
     </td>
     `;
     })()}    
@@ -130,11 +131,11 @@ export function registerHistoryRoute(
         </tr>
         <tr>
             ${game.players
-                .map(player => `<th>${player.name}</th>`)
+                .map(player => `<th>${escapeHtml(player.name)}</th>`)
                 .join("")}
             <th class="spacer-column"></th>
             ${game.players
-                .map(player => `<th>${player.name}</th>`)
+                .map(player => `<th>${escapeHtml(player.name)}</th>`)
                 .join("")}
         </tr>
     </thead>
