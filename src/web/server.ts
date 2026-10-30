@@ -1,3 +1,4 @@
+import { registerSettingsRoute } from "./routes/settings-route";
 import { registerGameOverRoute } from "./routes/game-over-route";
 import express from "express";
 import { PersistenceError } from "../services/persistence-service";
@@ -41,6 +42,7 @@ export function createApp(): express.Express {
         saveGame(updatedGame);
         game = updatedGame;
     };
+    registerSettingsRoute(app);
     registerHomeRoute(app, getGame, setGame);
     registerGameOverRoute(app, getGame);
     registerScoreHandRoute(app, getGame, setGame);
@@ -55,8 +57,8 @@ export function createApp(): express.Express {
             next(error);
             return;
         }
-        res.status(error.status).send(renderPage("Save or load not completed - MJScore", `
-<h2>Save or load not completed</h2>
+        res.status(error.status).send(renderPage("Action not completed - MJScore", `
+<h2>Action not completed</h2>
 <p>${escapeHtml(error.message)}</p>
 <p><a href="/">Current game</a> · <a href="/load-game">Saved games</a></p>`));
     });

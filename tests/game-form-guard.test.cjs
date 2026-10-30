@@ -11,7 +11,7 @@ const p = require('../dist/services/persistence-service');
 const { createGame, recordHand } = require('../dist/services/game-service');
 const { createApp } = require('../dist/web/server');
 const game = createGame(['A','B','C','D'],0);
-const firstHand = recordHand(game,{handNumber:1,roundWind:'East',eastPlayerId:'1',players:game.players.map((player,i)=>({playerId:player.id,handScore:i===1?22:0,mahJongg:i===1}))});
+const firstHand = recordHand(game,{handNumber:1,roundWind:'East',eastPlayerId:'1',maxHandScore:500,players:game.players.map((player,i)=>({playerId:player.id,handScore:i===1?22:0,mahJongg:i===1}))});
 const scores = {winnerId:'2',score_1:'0',score_2:'22',score_3:'0',score_4:'0'};
 after(()=>{process.chdir(cwd);fs.rmSync(directory,{recursive:true,force:true});});
 async function serve(initial, run) {

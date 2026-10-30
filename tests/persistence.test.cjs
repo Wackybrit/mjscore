@@ -11,7 +11,7 @@ const p = require(path.join(__dirname, '../dist/services/persistence-service'));
 const { createGame, recordHand } = require(path.join(__dirname, '../dist/services/game-service'));
 const { createApp } = require(path.join(__dirname, '../dist/web/server'));
 const game = createGame(['A','B','C','D'],0);
-const next = recordHand(game, {handNumber:1,roundWind:'East',eastPlayerId:'1',players:game.players.map((player,index)=>({playerId:player.id,handScore:index===1?22:0,mahJongg:index===1}))});
+const next = recordHand(game, {handNumber:1,roundWind:'East',eastPlayerId:'1',maxHandScore:500,players:game.players.map((player,index)=>({playerId:player.id,handScore:index===1?22:0,mahJongg:index===1}))});
 after(()=>{process.chdir(originalCwd);fs.rmSync(temporary,{recursive:true,force:true});});
 
 function assertNoTemps() {

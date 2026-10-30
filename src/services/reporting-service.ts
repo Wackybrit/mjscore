@@ -36,6 +36,7 @@ export function buildHandSummaryReport(
 
     lines.push("");
 
+    if (handResult.maxHandScore !== undefined) lines.push(`Payment limit per player: ${handResult.maxHandScore} (before East doubling)`);
     lines.push("Payments:");
 
     summary.settlements.forEach(settlement => {

@@ -1,3 +1,4 @@
+import { loadSettings } from "../../services/settings-service";
 import { isGameOver } from "../../services/game-service";
 import { escapeHtml } from "../html-utils";
 import { Express } from "express";
@@ -33,6 +34,7 @@ export function registerHandDetailRoute(
 ): void {
     app.get("/hand/:handNumber", (req, res) => {
         const game = getGame();
+        const { showCoinSettlements } = loadSettings();
         res.set("Cache-Control", "no-store");
 
         const handNumber = Number(
@@ -131,7 +133,7 @@ export function registerHandDetailRoute(
             <td style="${playerStyle}">
                 ${escapeHtml(player.name)}
             </td>
-            <td${scoreStyle}>${result.handScore}</td>
+            <td${scoreStyle} class="hand-value">${result.handScore}${hand.maxHandScore !== undefined && result.handScore > hand.maxHandScore ? `<span class="payment-note">settles as ${hand.maxHandScore}</span>` : ""}</td>
         </tr>
         `;
             })
@@ -249,14 +251,10 @@ export function registerHandDetailRoute(
                 `Hand ${hand.handNumber} - MJScore`,
                 `
 <h2>Hand ${hand.handNumber}${hand.deadHand ? " — Dead Hand" : ""}</h2>
+${!hand.deadHand && hand.maxHandScore !== undefined ? `<p class="muted">Raw scores are shown below. Payment limit: ${hand.maxHandScore} per player, before East’s doubling.</p>` : ""}
 ${hand.deadHand ? '<p class="replay-notice">No scores or payments. Winds stay in place. East passes after the next completed hand, even if East wins.</p>' : game.hands[game.hands.indexOf(hand) - 1]?.deadHand ? '<p class="replay-notice">Replay completed: normal payments apply, and East passes even if East won.</p>' : ""}
 
-<div class="card">
-    <div style="margin-bottom: 0.75rem;">
-        <strong>Hand Number:</strong>
-        ${hand.handNumber}
-    </div>
-
+<div class="card hand-summary">
     <table class="status-table">
         <tr>
             <td>
@@ -354,6 +352,8 @@ ${hand.deadHand ? '<p class="replay-notice">No scores or payments. Winds stay in
     </div>
 </div>
 
+${showCoinSettlements ? `
+<section class="coin-settlements" aria-label="Coin settlements">
 <h3>Payments</h3>
 
 <table>
@@ -372,25 +372,13 @@ ${hand.deadHand ? '<p class="replay-notice">No scores or payments. Winds stay in
         ${paymentRows || '<tr><td colspan="6">No payments — Dead Hand.</td></tr>'}
     </tbody>
 </table>
+</section>` : ""}
 
-<div class="next-hand-action">
-    <a href="${isGameOver(game) ? "/game-over" : "/"}">
-        <button>
-            <span style="color: #0b7a0b;">🀅</span>
-            ${isGameOver(game) ? "Game Over" : "Next Hand"}
-        </button>
-    </a>
+<div class="actions hand-actions">
+    <a href="${isGameOver(game) ? "/game-over" : "/"}" class="button button-primary">${isGameOver(game) ? "Game Over" : "Next Hand"}</a>
+    ${canEditHand ? '<a href="/edit-last-hand" class="button">Edit Last Hand</a>' : ""}
 </div>
 
-${canEditHand
-    ? `
-<div class="actions">
-    <a href="/edit-last-hand">
-        <button>Edit Last Hand</button>
-    </a>
-</div>
-`
-    : ""}
 `,
                 isGameOver(game)
             )

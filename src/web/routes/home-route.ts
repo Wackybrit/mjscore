@@ -1,3 +1,4 @@
+import { rackAccent, roundHeading, roundProgress } from "../game-display";
 import { createGameFormGuard } from "../game-form-guard";
 import { isGameOver, isReplayHand, recordDeadHand } from "../../services/game-service";
 import { escapeHtml } from "../html-utils";
@@ -5,7 +6,6 @@ import { Express } from "express";
 
 import { getPlayerWind } from "../../models/game-utils";
 import { Game } from "../../models/game";
-import { getRackColorCss } from "../../models/rack-color";
 import { getWindNumber } from "../../models/wind";
 import { renderPage } from "../page-template";
 
@@ -38,96 +38,23 @@ export function registerHomeRoute(
             return;
         }
 
-        const eastPlayer = game.players[game.eastPlayerIndex];
-
-        const playerRows = game.players
-            .map(player => {
-                const wind = getPlayerWind(
-                    player.seatPosition,
-                    game.eastPlayerIndex
-                );
-
-                const scoreText =
-                    player.score > 0
-                        ? `+${player.score}`
-                        : `${player.score}`;
-
-                const isEast = player.id === eastPlayer?.id;
-
-                const playerNameStyle = isEast
-                    ? `
-                        background-color: ${getRackColorCss(player.rackColor)};
-                        font-weight: bold;
-                        border-left: 4px solid #333333;
-                      `
-                    : `
-                        background-color: ${getRackColorCss(player.rackColor)};
-                      `;
-
-                return `
-<tr>
-    <td style="${playerNameStyle}">
-        ${escapeHtml(player.name)}
-    </td>
-    <td>${wind} (${getWindNumber(wind)})</td>
-    <td>${scoreText}</td>
-</tr>
-`;
-            })
-            .join("");
+        const playerCards = game.players.map(player => {
+            const wind = getPlayerWind(player.seatPosition, game.eastPlayerIndex);
+            const east = player.id === game.players[game.eastPlayerIndex]!.id;
+            return `<article class="player-card" style="--rack:${rackAccent(player.rackColor)}">
+<div class="player-card-heading"><h3>${escapeHtml(player.name)}</h3>${east ? '<span class="east-badge">EAST</span>' : ""}</div>
+<div class="seat-wind">${wind} <span class="wind-number">(${getWindNumber(wind)})</span></div>
+<div class="player-total">${player.score > 0 ? "+" : ""}${player.score}</div><div class="score-caption">total points</div></article>`;
+        }).join("");
 
         res.send(
             renderPage(
                 "MJScore",
                 `
-<h2>Current Game Status</h2>
+${roundHeading(game, "Current Game Status")}
 ${isReplayHand(game) ? '<p class="replay-notice"><strong>Replay hand:</strong> Winds stay in place through any dead hands. East passes after the next completed hand, even if East wins.</p>' : ""}
-
-<div class="card">
-    <div style="margin-bottom: 0.75rem;">
-        <strong>Hand Number:</strong>
-        ${game.handNumber}
-    </div>
-
-    <table class="status-table">
-        <tr>
-            <td>
-                <strong>Round Wind:</strong>
-                ${game.roundWind}
-            </td>
-
-            <td>
-                <strong>East Wind:</strong>
-                <span
-                    style="
-                        background-color: ${eastPlayer
-                            ? getRackColorCss(eastPlayer.rackColor)
-                            : "transparent"};
-                        padding: 0.15rem 0.5rem;
-                        border-radius: 4px;
-                    "
-                >
-                    ${escapeHtml(eastPlayer?.name ?? "Unknown")}
-                </span>
-            </td>
-        </tr>
-    </table>
-</div>
-
-<table>
-    <thead>
-        <tr>
-            <th>Player</th>
-            <th>Seat Wind</th>
-            <th>Current Total</th>
-        </tr>
-    </thead>
-
-    <tbody>
-        ${playerRows}
-    </tbody>
-</table>
-
+<div class="player-cards">${playerCards}</div>
+${roundProgress(game)}
 <div class="primary-action game-actions">
     <a href="/score-hand">
         <button>🀄 MAH-JONGG!</button>

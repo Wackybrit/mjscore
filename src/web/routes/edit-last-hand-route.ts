@@ -1,3 +1,4 @@
+import { loadSettings } from "../../services/settings-service";
 import { createGameFormGuard } from "../game-form-guard";
 import { escapeHtml } from "../html-utils";
 import { Express } from "express";
@@ -65,7 +66,7 @@ export function registerEditLastHandRoute(
 
                 return `
 <tr>
-    <td style="background-color: ${getRackColorCss(player.rackColor)};">
+    <td class="entry-player" style="background-color: ${getRackColorCss(player.rackColor)};">
         ${escapeHtml(player.name)}
     </td>
     <td>${wind} (${getWindNumber(wind)})</td>
@@ -80,31 +81,7 @@ export function registerEditLastHandRoute(
             ${index === 0 ? "autofocus" : ""}
         >
     </td>
-</tr>
-`;
-            })
-            .join("");
-
-        const winnerRows = game.players
-            .map(player => {
-                const handPlayer = lastHand.players.find(
-                    result => result.playerId === player.id
-                );
-
-                return `
-<tr>
-    <td style="background-color: ${getRackColorCss(player.rackColor)};">
-        ${escapeHtml(player.name)}
-    </td>
-    <td>
-        <input
-            type="radio"
-            name="winnerId"
-            value="${player.id}"
-            required
-            ${handPlayer?.mahJongg ? "checked" : ""}
-        >
-    </td>
+    <td><label class="winner-choice"><input type="radio" name="winnerId" value="${player.id}" ${handPlayer?.mahJongg ? "checked" : ""} required aria-label="${escapeHtml(player.name)} Mah-Jongg winner">Mah-Jongg</label></td>
 </tr>
 `;
             })
@@ -114,78 +91,18 @@ export function registerEditLastHandRoute(
             renderPage(
                 "Edit Last Hand - MJScore",
                 `
-<h2>Edit Last Hand</h2>
-
-<div class="card">
-    <div style="margin-bottom: 0.75rem;">
-        <strong>Hand Number:</strong>
-        ${lastHand.handNumber}
-    </div>
-
-    <table class="status-table">
-        <tr>
-            <td>
-                <strong>Round Wind:</strong>
-                ${lastHand.roundWind}
-            </td>
-
-            <td>
-                <strong>East Wind:</strong>
-                <span
-                    style="
-                        background-color: ${eastPlayer
-                            ? getRackColorCss(eastPlayer.rackColor)
-                            : "transparent"};
-                        padding: 0.15rem 0.5rem;
-                        border-radius: 4px;
-                    "
-                >
-                    ${escapeHtml(eastPlayer?.name ?? "Unknown")}
-                </span>
-            </td>
-        </tr>
-    </table>
-</div>
+<div class="page-heading"><div><p class="eyebrow">Hand ${lastHand.handNumber}</p><h2>Edit Last Hand</h2></div>
+<div class="round-summary"><div><strong>${lastHand.roundWind} round</strong><small>East: ${escapeHtml(eastPlayer?.name ?? "Unknown")}</small></div></div></div>
 
 <form method="POST" action="/edit-last-hand">
-    <input type="hidden" name="gameToken" value="${guard.tokenFor(game)}">
-    <p><label>Hand outcome:
+    <input type="hidden" name="gameToken" value="${guard.tokenFor(game, lastHand.deadHand ? String(loadSettings().maxHandScore) : "")}">
+    <div class="outcome-controls"><label>Hand outcome:
         <select name="handOutcome" id="hand-outcome">
             <option value="completed" ${lastHand.deadHand ? "" : "selected"}>Completed hand</option>
             <option value="dead" ${lastHand.deadHand ? "selected" : ""}>Dead hand</option>
         </select>
-    </label></p>
-    <p>Dead hands record zero scores and no winner. Corrections recalculate totals and winds.</p>
-    <h3>Hand Scores</h3>
-
-    <table>
-        <thead>
-            <tr>
-                <th>Player</th>
-                <th>Seat Wind</th>
-                <th>Score</th>
-            </tr>
-        </thead>
-
-        <tbody>
-            ${scoreRows}
-        </tbody>
-    </table>
-
-    <h3>Mah-Jongg Winner</h3>
-
-    <table>
-        <thead>
-            <tr>
-                <th>Player</th>
-                <th>Mah-Jongg</th>
-            </tr>
-        </thead>
-
-        <tbody>
-            ${winnerRows}
-        </tbody>
-    </table>
+    </label><p class="muted">Dead hands have zero scores and no winner.</p></div>
+    <table class="entry-table"><thead><tr><th>Player</th><th>Seat Wind</th><th>Raw score</th><th>Winner</th></tr></thead><tbody>${scoreRows}</tbody></table>
 
     <div class="actions">
         <button type="submit">Save Corrected Hand</button>
@@ -213,7 +130,7 @@ export function registerEditLastHandRoute(
 
     app.post("/edit-last-hand", (req, res) => {
         const game = getGame();
-        if (!guard.accept(game, req.body?.gameToken, res)) return;
+        if (!guard.accept(game, req.body?.gameToken, res, game.hands.at(-1)?.deadHand ? String(loadSettings().maxHandScore) : "")) return;
         const lastHand = game.hands.at(-1);
 
         if (!lastHand) {
@@ -277,7 +194,10 @@ export function registerEditLastHandRoute(
             }))
         };
 
-        if (!deadHand) delete correctedHand.deadHand;
+        if (!deadHand) {
+            delete correctedHand.deadHand;
+            if (lastHand.deadHand) correctedHand.maxHandScore = loadSettings().maxHandScore;
+        }
 
         const previousHands = game.hands.slice(
             0,

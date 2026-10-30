@@ -228,3 +228,30 @@ rebuilds totals and winds, including replay behavior and whether the game is ove
 Hand numbers identify history entries, so dead hands have their own numbered entry
 without advancing winds. Older saves without a dead-hand marker remain compatible.
 Dead hands cannot be declared after the game has ended.
+
+## Club Table appearance and Settings
+
+The Club Table layout uses large player totals, prominent seat winds with their
+numbers (East 1, South 2, West 3, North 4), and an eight-round progress strip. Score
+entry and latest-hand corrections combine scores and winner selection in one table.
+
+Settings are saved atomically in `data/settings.json`, on the same persistent volume
+as game data, and are included in normal data backups. With no settings file, defaults
+are Show coin settlements enabled and Maximum hand score 500.
+
+Turn off Show coin settlements to hide the whole Payments section on hand details.
+Raw hand scores, net changes, and running totals stay visible. This preference does
+not change scoring or saved games.
+
+For new completed hands, record the full raw score. Each player's payment score is
+capped at the configured maximum before winner payments, non-winner comparisons,
+and East doubling. Two non-winners whose raw scores both exceed the cap have equal
+payment scores. For example, East winning with raw 800 and a 500 cap receives 1,000
+from each opponent. History keeps 800 and identifies the 500 settlement score.
+
+Each new hand stores its `maxHandScore`. Later settings changes apply only to future
+hands; rebuilding or correcting an existing completed hand retains its original
+limit. Older hands without a stored cap keep their original uncapped calculations,
+so existing totals are never silently changed. Converting a dead hand to a completed
+hand uses the current limit. Scoring forms opened before a limit change require a
+refresh; they cannot silently submit under a different rule.

@@ -13,19 +13,23 @@ export function calculateSettlements(
         }
         return [];
     }
-    const winner = getMahJonggPlayer(handResult.players);
+    const players = handResult.players.map(player => ({
+        ...player,
+        handScore: Math.min(player.handScore, handResult.maxHandScore ?? Infinity)
+    }));
+    const winner = getMahJonggPlayer(players);
     const settlements: Settlement[] = [];
 
     addMahJonggPayments(
         settlements,
-        handResult.players,
+        players,
         winner,
         handResult.eastPlayerId
     );
 
     addHandComparisonPayments(
         settlements,
-        handResult.players,
+        players,
         winner.playerId,
         handResult.eastPlayerId
     );

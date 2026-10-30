@@ -23,6 +23,9 @@ export interface HandResult {
     /** Dead hands have zero scores and no winner; winds stay in place. */
     deadHand?: boolean;
 
+    /** Payment cap used for this hand. Absent on legacy hands, whose payments remain uncapped. */
+    maxHandScore?: number;
+
     /**
      * Sequential hand number.
      */

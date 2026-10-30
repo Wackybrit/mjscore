@@ -22,23 +22,23 @@ export function renderGameOverPage(game: Game): string {
     }).join("");
     return renderPage("Final scores - MJScore", `
 <style>
-.results-screen { max-width: 1050px; margin: 1.25rem auto; }
-.winner-banner { position: relative; text-align: center; padding: 1.6rem 2rem; border-radius: 16px; border: 3px solid #d9b45a; color: #fff9e7; background: linear-gradient(125deg, #123c32, #205747); box-shadow: 0 6px 18px #0002; }
+.results-screen { max-width: 1050px; margin: 0 auto; }
+.winner-banner { position: relative; text-align: center; padding: 1rem 2rem; border-radius: 16px; border: 3px solid #d9b45a; color: #fff9e7; background: linear-gradient(125deg, #123c32, #205747); box-shadow: 0 6px 18px #0002; }
 .result-kicker { margin: 0 0 .4rem; font-size: .85rem; font-weight: bold; letter-spacing: .14em; color: #f3d88b; }
 .result-trophy { font-size: 2.8rem; line-height: 1.2; }
 .winner-banner h2 { margin: .3rem 0; font-size: clamp(2rem, 4vw, 3rem); overflow-wrap: anywhere; }
 .joint-winner-names { margin: .4rem 0; font-size: 1.65rem; font-weight: bold; overflow-wrap: anywhere; }
 .winner-points { margin: .5rem 0 0; color: #f3d88b; font-size: 1.35rem; }
-.final-heading { margin: 1.25rem 0 .6rem; }
+.final-heading { margin: 1rem 0 .4rem; }
 .final-scores { width: 100%; font-size: 1.2rem; }
-.final-scores th, .final-scores td { padding: .65rem 1rem; }
-.final-scores th { background: #e7ece8; }
+.final-scores th, .final-scores td { padding: .5rem 1rem; }
+.final-scores th { background: var(--panel); }
 .final-scores .final-player { text-align: left; overflow-wrap: anywhere; }
 .final-scores .final-score { font-size: 1.4rem; font-weight: bold; font-variant-numeric: tabular-nums; }
-.winning-row { background: #fff4d3; }
+.winning-row { background: #fff4da; color: #193e30; }
 .rack-marker { display: inline-block; width: .8rem; height: .8rem; border-radius: 50%; margin-right: .65rem; border: 1px solid #777; }
 .result-actions { display: flex; flex-wrap: wrap; gap: 1rem; margin-top: 1rem; }
-.result-actions a { color: #123c32; font-weight: bold; padding: .6rem .85rem; background: white; border: 1px solid #bccac1; border-radius: 6px; text-decoration: none; }
+.result-actions a { color: #123c32; font-weight: bold; padding: .6rem .85rem; background: #fff4da; border: 1px solid #dfd3b3; border-radius: 6px; text-decoration: none; }
 </style>
 <section class="results-screen">
 <div class="winner-banner" aria-label="Game winner">

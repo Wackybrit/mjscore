@@ -1,6 +1,7 @@
+import { writeJsonAtomically } from "./atomic-file-service";
 import fs from "node:fs";
 import path from "node:path";
-import { createHash, randomUUID } from "node:crypto";
+import { createHash } from "node:crypto";
 import { Game } from "../models/game";
 import { validateSavedGame } from "./saved-game-validation";
 
@@ -24,38 +25,10 @@ function sanitizeFileName(fileName: string): string {
 }
 
 function writeGame(filePath: string, game: Game): void {
-    // Serialize and validate before touching an existing save.
-    let contents: string;
-    try {
-        validateSavedGame(game);
-        contents = JSON.stringify(game, null, 4);
-    } catch {
-        throw new PersistenceError("This game could not be saved because its data is invalid. The previous save was kept.", 400);
-    }
-    const temporary = path.join(path.dirname(filePath), `.mjscore-${randomUUID()}.tmp`);
-    let descriptor: number | undefined;
-    let created = false;
-    try {
-        fs.mkdirSync(path.dirname(filePath), { recursive: true });
-        const mode = fs.existsSync(filePath) ? fs.statSync(filePath).mode & 0o777 : 0o666;
-        descriptor = fs.openSync(temporary, "wx", mode);
-        created = true;
-        fs.writeFileSync(descriptor, contents, "utf8");
-        fs.fsyncSync(descriptor);
-        fs.closeSync(descriptor);
-        descriptor = undefined;
-        // Same-directory rename replaces the old save only after the new file is complete.
-        fs.renameSync(temporary, filePath);
-    } catch {
-        throw new PersistenceError("The game could not be saved. The previous save was kept. Check available storage and data folder permissions, then try again.");
-    } finally {
-        if (descriptor !== undefined) {
-            try { fs.closeSync(descriptor); } catch { /* Preserve the original error. */ }
-        }
-        if (created) {
-            try { fs.unlinkSync(temporary); } catch { /* Renamed files no longer exist here. */ }
-        }
-    }
+    try { validateSavedGame(game); }
+    catch { throw new PersistenceError("This game could not be saved because its data is invalid. The previous save was kept.", 400); }
+    try { writeJsonAtomically(filePath, game); }
+    catch { throw new PersistenceError("The game could not be saved. The previous save was kept. Check available storage and data folder permissions, then try again."); }
 }
 
 function readGame(filePath: string): Game {

@@ -41,7 +41,7 @@ export function registerHistoryRoute(
                             ? ` style="background-color: ${playerColor}; font-weight: bold;"`
                             : "";
 
-                        return `<td${style}>${score}</td>`;
+                        return `<td${style}>${score}${hand.maxHandScore !== undefined && result.handScore > hand.maxHandScore ? `<span class="payment-note">settles as ${hand.maxHandScore}</span>` : ""}</td>`;
                     })
                     .join("");
 
@@ -121,7 +121,7 @@ export function registerHistoryRoute(
                 `
 <h2>Hand History</h2>
 
-<table>
+<div class="table-scroll"><table class="history-table">
     <thead>
         <tr>
             <th rowspan="2">Hand</th>
@@ -154,7 +154,7 @@ export function registerHistoryRoute(
         </tr>
 
     </tbody>
-</table>
+</table></div>
 
 <p>
     <a href="/">

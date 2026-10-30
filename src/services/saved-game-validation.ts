@@ -45,6 +45,7 @@ export function validateSavedGame(value: unknown): asserts value is Game {
         requireValid(typeof hand.eastPlayerId === "string" && ids.has(hand.eastPlayerId));
         requireValid(hand.notes === undefined || typeof hand.notes === "string");
         requireValid(hand.deadHand === undefined || typeof hand.deadHand === "boolean");
+        requireValid(hand.maxHandScore === undefined || (integer(hand.maxHandScore, 22) && hand.maxHandScore % 2 === 0));
         requireValid(Array.isArray(hand.players) && hand.players.length === 4);
         const handIds = new Set<string>();
         let winners = 0;
