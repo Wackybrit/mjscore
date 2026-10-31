@@ -1,5 +1,5 @@
 export const clubTableStyles = `
-:root { --paper:#193e30; --panel:#254c3b; --ink:#fff4da; --muted:#d3decb; --line:#526f58; --green:#efdbac; --gold:#e6cb88; --gold-soft:#3b573e; }
+:root { --paper:#133227; --panel:#254c3b; --ink:#fff4da; --muted:#d3decb; --line:#526f58; --green:#efdbac; --gold:#e6cb88; --gold-soft:#3b573e; }
 * { box-sizing:border-box; }
 body { margin:0; color:var(--ink); background:var(--paper); font:17px/1.4 -apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif; }
 a { color:var(--green); }
@@ -25,11 +25,11 @@ p { margin:12px 0; }
 .round-summary strong { display:block; }
 .round-summary small { color:var(--muted); }
 .player-cards { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:16px; }
-.player-card { min-width:0; padding:20px; border:1px solid var(--line); border-top:5px solid var(--rack); border-radius:18px; background:var(--panel); }
+.player-card { min-width:0; padding:20px; border:1px solid var(--line); border-top:10px solid var(--rack); border-radius:18px; background:var(--panel); }
 .player-card-heading { display:flex; gap:8px; align-items:center; justify-content:space-between; flex-wrap:wrap; }
-.player-card h3 { margin:0; font-size:23px; overflow-wrap:anywhere; }
+.player-card h3 { margin:0; font-size:25px; overflow-wrap:anywhere; }
 .east-badge { color:var(--ink); background:var(--gold-soft); border-radius:5px; padding:4px 7px; font-size:11px; font-weight:700; letter-spacing:.06em; }
-.seat-wind { margin:16px 0 10px; font-size:25px; font-weight:650; white-space:nowrap; }
+.seat-wind { margin:16px 0 10px; font-size:23px; font-weight:650; white-space:nowrap; }
 .wind-number { color:var(--green); font-weight:700; }
 .player-total { font-size:50px; font-weight:700; line-height:1.12; letter-spacing:-1.5px; font-variant-numeric:tabular-nums; overflow-wrap:anywhere; }
 .score-caption { color:var(--muted); font-size:13px; margin-top:5px; }
@@ -91,5 +91,5 @@ input:disabled { opacity:.5; }
 .history-table { width:100%; }
 :focus-visible { outline:3px solid #e6cb88; outline-offset:3px; }
 @media(max-width:800px) { .player-cards { grid-template-columns:repeat(2,minmax(0,1fr)); }.brand-description { display:none; }.three-column-section { gap:18px; }.entry-table td { padding:10px 8px; }.entry-player { font-size:19px; } }
-@media(max-width:520px) { main { padding:20px 14px; }.brand-row { padding:16px; }.brand-tag { display:none; }nav { padding:6px; }nav a { padding:8px 10px; font-size:14px; }.player-card { padding:16px 12px; }.player-card h3 { font-size:20px; }.player-total { font-size:38px; }.seat-wind { font-size:22px; }.page-heading h2 { font-size:26px; }.primary-action { margin-top:20px; }.game-actions>a,.game-actions form,.game-actions button { width:100%; }.status-table td { padding:4px 10px 4px 0; }.entry-table th { font-size:12px; }.entry-table td { padding:9px 4px; }.entry-table .entry-player { font-size:16px; }.entry-wind { font-size:17px; }.entry-table input[type="number"] { width:82px; margin:0; padding:8px 5px; font-size:20px; }.winner-choice { font-size:0; }.winner-choice input { min-width:24px; }.settings-section { padding:18px; } }
+@media(max-width:520px) { main { padding:20px 14px; }.brand-row { padding:16px; }.brand-tag { display:none; }nav { padding:6px; }nav a { padding:8px 10px; font-size:14px; }.player-card { padding:16px 12px; }.player-card h3 { font-size:22px; }.player-total { font-size:38px; }.seat-wind { font-size:20px; }.page-heading h2 { font-size:26px; }.primary-action { margin-top:20px; }.game-actions>a,.game-actions form,.game-actions button { width:100%; }.status-table td { padding:4px 10px 4px 0; }.entry-table th { font-size:12px; }.entry-table td { padding:9px 4px; }.entry-table .entry-player { font-size:16px; }.entry-wind { font-size:17px; }.entry-table input[type="number"] { width:82px; margin:0; padding:8px 5px; font-size:20px; }.winner-choice { font-size:0; }.winner-choice input { min-width:24px; }.settings-section { padding:18px; } }
 `;

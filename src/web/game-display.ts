@@ -4,7 +4,7 @@ import { RackColor } from "../models/rack-color";
 import { escapeHtml } from "./html-utils";
 
 export function rackAccent(color: RackColor): string {
-    return { Red: "#c3544f", Blue: "#3b78ac", Green: "#43875e", Yellow: "#b49327" }[color];
+    return { Red: "#ed6b62", Blue: "#63a8e2", Green: "#67bd83", Yellow: "#f5d547" }[color];
 }
 export function roundHeading(game: Game, title: string): string {
     const glyph = { East: "🀀", South: "🀁", West: "🀂", North: "🀃" }[game.roundWind];
