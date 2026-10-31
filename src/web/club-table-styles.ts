@@ -64,6 +64,8 @@ td { font-size:17px; }
 .hand-summary + .three-column-section h3 { margin-top:6px; }
 .hand-actions .button-primary { min-width:230px; min-height:56px; font-size:20px; }
 .hand-value { font-size:22px; font-weight:650; }
+.rack-highlight { color:#133227; }
+.rack-highlight .payment-note { color:#244231; }
 .payment-note { display:block; font-size:12px; color:var(--muted); font-weight:400; margin-top:4px; }
 input,select { font:inherit; color:var(--ink); background:var(--panel); border:1px solid #80967c; border-radius:8px; padding:9px 10px; margin:4px; min-height:44px; max-width:100%; }
 input[type="number"] { width:145px; font-size:22px; font-variant-numeric:tabular-nums; }

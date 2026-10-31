@@ -1,10 +1,10 @@
 import { Game } from "../models/game";
 import { Wind, WIND_ORDER } from "../models/wind";
-import { RackColor } from "../models/rack-color";
+import { RackColor, getRackColorCss } from "../models/rack-color";
 import { escapeHtml } from "./html-utils";
 
 export function rackAccent(color: RackColor): string {
-    return { Red: "#ed6b62", Blue: "#63a8e2", Green: "#67bd83", Yellow: "#f5d547" }[color];
+    return getRackColorCss(color);
 }
 export function roundHeading(game: Game, title: string): string {
     const glyph = { East: "🀀", South: "🀁", West: "🀂", North: "🀃" }[game.roundWind];

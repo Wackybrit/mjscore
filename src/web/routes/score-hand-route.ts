@@ -21,7 +21,7 @@ export function registerScoreHandRoute(app: Express, getGame: () => Game, setGam
         const { maxHandScore } = loadSettings();
         const rows = game.players.map((player, index) => {
             const wind = getPlayerWind(player.seatPosition, game.eastPlayerIndex);
-            return `<tr><td class="entry-player" style="background-color:${getRackColorCss(player.rackColor)}">${escapeHtml(player.name)}</td>
+            return `<tr><td class="entry-player rack-highlight" style="background-color:${getRackColorCss(player.rackColor)}">${escapeHtml(player.name)}</td>
 <td class="entry-wind">${wind} (${getWindNumber(wind)})</td>
 <td><input type="number" name="score_${player.id}" aria-label="${escapeHtml(player.name)} raw score" min="0" step="2" required inputmode="numeric" ${index === 0 ? "autofocus" : ""}></td>
 <td><label class="winner-choice"><input type="radio" name="winnerId" value="${player.id}" aria-label="${escapeHtml(player.name)} Mah-Jongg winner" required>Mah-Jongg</label></td></tr>`;

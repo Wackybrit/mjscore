@@ -17,15 +17,15 @@ export function getRackColorCss(
 ): string {
     switch (rackColor) {
         case RackColor.Red:
-            return "rgba(255, 0, 0, 0.30)";
+            return "#ed6b62";
 
         case RackColor.Blue:
-            return "rgba(0, 102, 255, 0.30)";
+            return "#63a8e2";
 
         case RackColor.Green:
-            return "rgba(0, 160, 80, 0.30)";
+            return "#67bd83";
 
         case RackColor.Yellow:
-            return "rgba(255, 220, 0, 0.35)";
+            return "#f5d547";
     }
 }

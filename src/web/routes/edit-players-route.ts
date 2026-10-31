@@ -17,7 +17,7 @@ export function registerEditPlayersRoute(
         const playerRows = game.players
             .map((player, index) => `
 <tr>
-    <td style="background-color: ${getRackColorCss(player.rackColor)};">
+    <td class="rack-highlight" style="background-color: ${getRackColorCss(player.rackColor)};">
         ${player.rackColor}
     </td>
     <td>${escapeHtml(player.name)}</td>
@@ -43,7 +43,7 @@ export function registerEditPlayersRoute(
 <h2>Edit Players</h2>
 
 <form method="POST" action="/edit-players">
-    <table>
+    <div class="table-scroll"><table>
         <thead>
             <tr>
                 <th>Rack Color</th>
@@ -55,7 +55,7 @@ export function registerEditPlayersRoute(
         <tbody>
             ${playerRows}
         </tbody>
-    </table>
+    </table></div>
 
     <div class="actions">
         <button type="submit">Save Player Names</button>

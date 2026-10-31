@@ -66,7 +66,7 @@ export function registerEditLastHandRoute(
 
                 return `
 <tr>
-    <td class="entry-player" style="background-color: ${getRackColorCss(player.rackColor)};">
+    <td class="entry-player rack-highlight" style="background-color: ${getRackColorCss(player.rackColor)};">
         ${escapeHtml(player.name)}
     </td>
     <td>${wind} (${getWindNumber(wind)})</td>

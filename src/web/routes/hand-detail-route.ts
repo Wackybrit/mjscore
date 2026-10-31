@@ -130,7 +130,7 @@ export function registerHandDetailRoute(
 
                 return `
         <tr>
-            <td style="${playerStyle}">
+            <td class="rack-highlight" style="${playerStyle}">
                 ${escapeHtml(player.name)}
             </td>
             <td${scoreStyle} class="hand-value">${result.handScore}${hand.maxHandScore !== undefined && result.handScore > hand.maxHandScore ? `<span class="payment-note">settles as ${hand.maxHandScore}</span>` : ""}</td>
@@ -151,7 +151,7 @@ export function registerHandDetailRoute(
 
                 return `
         <tr>
-            <td
+            <td class="rack-highlight"
                 style="
                     background-color:
                     ${getRackColorCss(player.rackColor)};
@@ -204,11 +204,11 @@ export function registerHandDetailRoute(
 
                 return `
 <tr>
-    <td style="background-color: ${getRackColorCss(fromPlayer.rackColor)};">
+    <td class="rack-highlight" style="background-color: ${getRackColorCss(fromPlayer.rackColor)};">
         ${escapeHtml(fromPlayer.name)}
     </td>
     <td>pays</td>
-    <td style="background-color: ${getRackColorCss(toPlayer.rackColor)};">
+    <td class="rack-highlight" style="background-color: ${getRackColorCss(toPlayer.rackColor)};">
         ${escapeHtml(toPlayer.name)}
     </td>
     <td>${settlement.amount}</td>
@@ -237,7 +237,7 @@ export function registerHandDetailRoute(
 
                 return `
 <tr>
-    <td style="background-color: ${getRackColorCss(player.rackColor)};">
+    <td class="rack-highlight" style="background-color: ${getRackColorCss(player.rackColor)};">
         ${escapeHtml(player.name)}
     </td>
     <td>${sign}${result.amount}</td>
@@ -264,7 +264,7 @@ ${hand.deadHand ? '<p class="replay-notice">No scores or payments. Winds stay in
 
             <td>
                 <strong>East Wind:</strong>
-                <span
+                <span class="rack-highlight"
                     style="
                         background-color: ${getRackColorCss(
                             game.players.find(
@@ -281,7 +281,7 @@ ${hand.deadHand ? '<p class="replay-notice">No scores or payments. Winds stay in
 
             <td>
                 <strong>Mah-Jongg:</strong>
-                <span
+                <span class="${winner ? "rack-highlight" : ""}"
                     style="
                         background-color: ${winner ? getRackColorCss(
                             game.players.find(

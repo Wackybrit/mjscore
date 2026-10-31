@@ -38,7 +38,7 @@ export function registerHistoryRoute(
 
                         const playerColor = getRackColorCss(player.rackColor);
                         const style = result.mahJongg
-                            ? ` style="background-color: ${playerColor}; font-weight: bold;"`
+                            ? ` class="rack-highlight" style="background-color: ${playerColor}; font-weight: bold;"`
                             : "";
 
                         return `<td${style}>${score}${hand.maxHandScore !== undefined && result.handScore > hand.maxHandScore ? `<span class="payment-note">settles as ${hand.maxHandScore}</span>` : ""}</td>`;
@@ -88,7 +88,7 @@ export function registerHistoryRoute(
         }
 
         return `
-    <td style="background-color: ${getRackColorCss(eastPlayer.rackColor)};">
+    <td class="rack-highlight" style="background-color: ${getRackColorCss(eastPlayer.rackColor)};">
         ${escapeHtml(eastPlayer.name)}
     </td>
     `;
